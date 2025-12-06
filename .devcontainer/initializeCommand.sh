@@ -10,7 +10,3 @@ fi
 
 # Create the network if it doesn't exist
 docker network create "${PROJECT_NAME}_app-network" 2>/dev/null || true
-
-# Start the database and cache services
-# Set COMPOSE_PROJECT_NAME to ensure consistent naming with the network
-COMPOSE_PROJECT_NAME="$PROJECT_NAME" docker compose up -d

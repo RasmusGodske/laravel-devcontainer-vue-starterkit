@@ -10,7 +10,8 @@
   },
   "mounts": [
     "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
-    "source=${localWorkspaceFolderBasename}-vendor,target=${containerWorkspaceFolder}/vendor,type=volume"
+    "source=${localWorkspaceFolderBasename}-vendor,target=${containerWorkspaceFolder}/vendor,type=volume",
+    "source=${localWorkspaceFolderBasename}-claude,target=/home/vscode/.claude,type=volume"
   ],
   "workspaceFolder": "/home/vscode/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/project,type=bind,consistency=delegated",
@@ -19,8 +20,21 @@
     "--network=${localWorkspaceFolderBasename}_app-network"
   ],
   "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Laravel App",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    },
+    "5173": {
+      "label": "Vite Hot Module Replacement",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    }
+  },
   "initializeCommand": "./.devcontainer/initializeCommand.sh",
   "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+  "postAttachCommand": "./.devcontainer/postAttachCommand.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -38,9 +52,11 @@
   },
   "remoteUser": "vscode",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
   "containerEnv": {
-    "APP_PORT": "8080"
+    "APP_PORT": "8080",
+    "COMPOSE_PROJECT_NAME": "${localWorkspaceFolderBasename}"
   }
 }

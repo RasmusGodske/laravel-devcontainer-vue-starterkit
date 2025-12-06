@@ -2,24 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Format Current File (Prettier)",
-      "type": "shell",
-      "command": "npx prettier --write '${file}'",
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      },
-      "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "close": true
-      }
-    },
-    {
       "label": "Lint Current File (ESLint)",
       "type": "shell",
       "command": "npx eslint '${file}'",
@@ -74,23 +56,30 @@
       }
     },
     {
-      "label": "Setup Project (From Scratch)",
-      "dependsOn": [
-        "Composer: install",
-        "Npm: install",
-        "Database: migrate:fresh --seed",
-        "Artisan: optimize:clear"
-      ],
-      "dependsOrder": "sequence",
+      "label": "Docker: compose up",
+      "type": "shell",
+      "command": "docker compose up",
       "icon": {
         "color": "terminal.ansiBlue",
-        "id": "window"
+        "id": "package"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
       }
     },
     {
       "label": "Dev: Start",
       "dependsOn": [
+        "Docker: compose up",
         "Artisan: serve",
+        "Artisan: pail",
         "Npm: run dev"
       ],
       "icon": {
@@ -98,6 +87,25 @@
         "id": "play"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Artisan: pail",
+      "type": "shell",
+      "command": "php artisan pail --timeout=0",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "output"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
       "label": "Artisan: serve",
@@ -188,21 +196,6 @@
       "problemMatcher": []
     },
     {
-      "label": "Artisan: route:list",
-      "type": "shell",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "command": "php artisan route:list",
-      "problemMatcher": []
-    },
-    {
       "label": "Database: migrate",
       "type": "shell",
       "command": "php artisan migrate",
@@ -277,7 +270,9 @@
     {
       "label": "Npm: run dev",
       "type": "shell",
-      "dependsOn": ["Npm: install"],
+      "dependsOn": [
+        "Npm: install"
+      ],
       "command": "npm run dev",
       "icon": {
         "color": "terminal.ansiCyan",

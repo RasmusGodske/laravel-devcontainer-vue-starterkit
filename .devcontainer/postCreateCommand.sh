@@ -34,13 +34,3 @@ if grep -q "^APP_KEY=$" /home/vscode/project/.env 2>/dev/null; then
   php artisan key:generate
 fi
 
-echo ""
-echo "=========================================="
-echo "Setup complete! You can now run:"
-echo "  - php artisan serve --host=0.0.0.0 --port=8080"
-echo "  - npm run dev"
-echo "  - php artisan migrate"
-echo ""
-echo "Or use aliases:"
-echo "  - art serve --host=0.0.0.0 --port=8080"
-echo "=========================================="
