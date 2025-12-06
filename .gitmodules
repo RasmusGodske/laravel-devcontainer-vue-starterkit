@@ -1,0 +1,3 @@
+[submodule ".claude/rules"]
+	path = .claude/rules
+	url = https://github.com/RasmusGodske/laravel-vue-rules
