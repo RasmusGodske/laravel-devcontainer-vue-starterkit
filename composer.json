@@ -27,7 +27,8 @@
         "laravel/pint": "^1.18",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.3"
+        "phpunit/phpunit": "^11.5.3",
+        "rector/rector": "^1.2"
     },
     "autoload": {
         "psr-4": {
@@ -38,7 +39,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Rector\\Custom\\": "rector/"
         }
     },
     "scripts": {
@@ -71,7 +73,9 @@
             "@php artisan test"
         ],
         "format:php": "pint",
-        "format:php-dirty": "pint  --dirty",
+        "format:php-dirty": "pint --dirty",
+        "rector": "php vendor/bin/rector process --dry-run",
+        "rector:fix": "php vendor/bin/rector process",
         "dev-setup": [
           "@php artisan typescript:transform --format",
           "@php artisan ide-helper:generate",
