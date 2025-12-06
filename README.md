@@ -204,7 +204,7 @@ const user = page.props.auth.user; // Fully typed!
 
 ## Documentation
 
-For detailed documentation on how this starter kit is configured, see the [Docs/StarterKit](Docs/StarterKit) directory.
+For detailed documentation on how this starter kit is configured, see the [docs/starter-kit](docs/starter-kit) directory.
 
 ## Architecture
 
