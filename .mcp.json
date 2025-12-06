@@ -1,0 +1,26 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "php",
+            "args": [
+                "artisan",
+                "boost:mcp"
+            ]
+        },
+        "serena": {
+            "command": "/home/vscode/.local/bin/uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/oraios/serena",
+                "serena",
+                "start-mcp-server",
+                "--project",
+                "/home/vscode/project",
+                "--context",
+                "ide-assistant",
+                "--enable-web-dashboard",
+                "False"
+            ]
+        }
+    }
+}
