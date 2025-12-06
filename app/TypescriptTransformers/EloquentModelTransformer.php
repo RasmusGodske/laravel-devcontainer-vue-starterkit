@@ -14,6 +14,7 @@ namespace App\TypescriptTransformers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\TypeScriptTransformer\Structures\TransformedType;
 use Spatie\TypeScriptTransformer\Transformers\Transformer;
 
@@ -24,6 +25,7 @@ class EloquentModelTransformer implements Transformer
         if (! is_subclass_of($class->name, Model::class)) {
             return null;
         }
+
         /** @var Model $modelInstance */
         $modelInstance = $class->newInstanceWithoutConstructor();
 
@@ -50,7 +52,7 @@ class EloquentModelTransformer implements Transformer
                 $typescriptType = $this->mapTypeNameToJsonType($column['type_name']);
             }
 
-            $typescriptPropertyDefinition = "$propertyName: $typescriptType";
+            $typescriptPropertyDefinition = sprintf('%s: %s', $propertyName, $typescriptType);
 
             if ($isNullable) {
                 $typescriptPropertyDefinition .= ' | null';
@@ -74,7 +76,7 @@ class EloquentModelTransformer implements Transformer
                 }
             }
 
-            $typescriptProperties[] = "$append: $type";
+            $typescriptProperties[] = sprintf('%s: %s', $append, $type);
         }
 
         // Add relation types
@@ -106,7 +108,7 @@ class EloquentModelTransformer implements Transformer
     private function mapCastToType(string $cast): string
     {
         if (enum_exists($cast)) {
-            return implode(' | ', array_map(fn ($case) => "'$case->value'", $cast::cases()));
+            return implode(' | ', array_map(fn ($case) => sprintf("'%s'", $case->value), $cast::cases()));
         }
 
         return match ($cast) {
@@ -152,7 +154,7 @@ class EloquentModelTransformer implements Transformer
 
             $typescriptType = $this->parseRelationTypeFromDocComment($typeDeclaration);
             if ($typescriptType !== null) {
-                $relationProperties[] = "$propertyName?: $typescriptType";
+                $relationProperties[] = sprintf('%s?: %s', $propertyName, $typescriptType);
             }
         }
 
@@ -172,13 +174,13 @@ class EloquentModelTransformer implements Transformer
 
             $typescriptNamespace = $this->convertNamespaceToTypescript($modelClass);
 
-            return "{$typescriptNamespace}[]";
+            return $typescriptNamespace.'[]';
         }
 
         // Handle simple model types: \App\Models\Customer|null or \App\Models\Data\DataObject
         if (preg_match('/\\\\App\\\\Models\\\\([^|\\s]+)/', $typeDeclaration, $matches)) {
             $modelPath = $matches[1];
-            $fullModelClass = "App\\Models\\{$modelPath}";
+            $fullModelClass = 'App\Models\\'.$modelPath;
 
             // Check if the model class has TypeScript attribute
             if (! $this->hasTypeScriptAttribute($fullModelClass)) {
@@ -189,7 +191,7 @@ class EloquentModelTransformer implements Transformer
 
             // Check if nullable
             if (str_contains($typeDeclaration, '|null')) {
-                return "$typescriptNamespace | null";
+                return $typescriptNamespace.' | null';
             }
 
             return $typescriptNamespace;
@@ -208,7 +210,7 @@ class EloquentModelTransformer implements Transformer
         $attributes = $reflection->getAttributes();
 
         foreach ($attributes as $attribute) {
-            if ($attribute->getName() === 'Spatie\\TypeScriptTransformer\\Attributes\\TypeScript') {
+            if ($attribute->getName() === TypeScript::class) {
                 return true;
             }
         }

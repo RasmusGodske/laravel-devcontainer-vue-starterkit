@@ -13,6 +13,8 @@ A modern Laravel starter kit with Vue 3, Inertia.js, and Tailwind CSS, optimized
 - **Redis**: High-performance caching and session storage
 - **Code Quality Tools**:
   - Laravel Pint for PHP formatting
+  - Rector for automated code refactoring and import management
+  - Larastan for static analysis
   - ESLint and Prettier for JavaScript/TypeScript
   - Husky for Git hooks
 - **IDE Enhancements**:
@@ -106,6 +108,12 @@ composer format:php
 # Format only changed files
 composer format:php-dirty
 
+# Run Rector (dry-run to preview changes)
+composer rector
+
+# Run Rector and apply changes
+composer rector:fix
+
 # Complete dev setup (types, IDE helper, formatting)
 composer dev-setup
 ```
@@ -158,7 +166,7 @@ The starter kit uses PostgreSQL by default. Connection details:
 - Host: `pgsql`
 - Port: `5432`
 - Database: `laravel`
-- Username: `sail`
+- Username: `laravel`
 - Password: `password`
 
 You can connect with any PostgreSQL client using these credentials.
