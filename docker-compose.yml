@@ -1,0 +1,45 @@
+services:
+    pgsql:
+        image: 'postgres:17'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'pgsql-data:/var/lib/postgresql/data'
+        networks:
+            - app-network
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
+    redis:
+        image: 'redis:alpine'
+        volumes:
+            - 'redis-data:/data'
+        networks:
+            - app-network
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+networks:
+    app-network:
+        external: true
+        name: ${COMPOSE_PROJECT_NAME}_app-network
+volumes:
+    pgsql-data:
+        driver: local
+    redis-data:
+        driver: local

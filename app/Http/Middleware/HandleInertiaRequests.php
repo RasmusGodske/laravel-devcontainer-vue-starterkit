@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Data\Inertia\InertiaAuthData;
+use App\Data\Inertia\InertiaQuoteData;
+use App\Data\Inertia\InertiaSharedData;
+use App\Data\Inertia\InertiaZiggyData;
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Tighten\Ziggy\Ziggy;
+
+class HandleInertiaRequests extends Middleware
+{
+    /**
+     * The root template that's loaded on the first page visit.
+     *
+     * @see https://inertiajs.com/server-side-setup#root-template
+     *
+     * @var string
+     */
+    protected $rootView = 'app';
+
+    /**
+     * Determines the current asset version.
+     *
+     * @see https://inertiajs.com/asset-versioning
+     */
+    public function version(Request $request): ?string
+    {
+        return parent::version($request);
+    }
+
+    /**
+     * Define the props that are shared by default.
+     *
+     * @see https://inertiajs.com/shared-data
+     *
+     * @return array<string, mixed>
+     */
+    public function share(Request $request): array
+    {
+        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+
+        $inertiaAuthData = null;
+        if ($request->user()) {
+            $inertiaAuthData = new InertiaAuthData(
+                user: $request->user(),
+            );
+        }
+
+        $inertiaZiggyData = InertiaZiggyData::fromZiggy(
+            ziggy: new Ziggy,
+            request: $request,
+        );
+
+        $inertiaSharedData = new InertiaSharedData(
+            name: config('app.name'),
+            quote: new InertiaQuoteData(
+                author: trim($author),
+                message: trim($message),
+            ),
+            auth: $inertiaAuthData,
+            sidebarOpen: ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            ziggy: $inertiaZiggyData,
+            errors: $this->resolveValidationErrors($request),
+        );
+
+        $inertiaSharedDataArray = $inertiaSharedData->toArray();
+
+        return $inertiaSharedDataArray;
+    }
+}

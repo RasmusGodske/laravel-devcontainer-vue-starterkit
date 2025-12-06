@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+# Check for PSR compliance before committing
+
+echo "📋 Running pre-commit checks..."
+
+# Run the command, saving output to a file while displaying it
+composer dump-autoload --dry-run -o --strict-psr 2>&1 | tee /tmp/composer_output.txt
+STATUS=$?
+
+# Check if we have PSR compliance errors
+if grep -q "does not comply with psr-4 autoloading standard" /tmp/composer_output.txt; then
+  echo ""
+  echo "❌ PSR-4 compliance error detected! Please fix the file paths to match PSR-4 autoloading."
+  echo "❌ Commit aborted."
+  exit 1
+elif [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "❌ Error detected in autoload generation. Commit aborted."
+  exit 1
+else
+  echo "✅ PSR compliance check passed!"
+fi
+
+# Clean up
+rm -f /tmp/composer_output.txt

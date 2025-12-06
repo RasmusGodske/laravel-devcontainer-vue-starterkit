@@ -1,0 +1,62 @@
+{
+  // PHP settings
+  // Additional watcher settings
+  "search.followSymlinks": false,
+  "files.refactoring.autoSave": false,
+  // Editor settings
+  "workbench.editor.closeOnFileDelete": true,
+  // File exclusions
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.nuxt": true,
+    "**/.output": true,
+    "**/.svn": true,
+    "**/bower_components": true,
+    "**/CVS": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/tmp": true
+  },
+  // File watcher exclusions
+  "files.watcherExclude": {
+    "**/.nuxt/**": true,
+    "**/dist/**": true,
+    "**/vendor/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/tmp/**": true,
+    "**/bower_components/**": true,
+    "cache/**": true,
+    "tmp/**": true
+  },
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "search.exclude": {
+    "node_modules": true,
+    "public": true,
+    "vendor": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  }
+}

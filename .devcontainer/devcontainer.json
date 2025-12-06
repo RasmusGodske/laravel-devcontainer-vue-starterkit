@@ -1,0 +1,46 @@
+{
+  "name": "Laravel Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "INSTALL_ZSH": "true",
+      "USER_UID": "1000",
+      "USER_GID": "1000"
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=${localWorkspaceFolderBasename}-vendor,target=${containerWorkspaceFolder}/vendor,type=volume"
+  ],
+  "workspaceFolder": "/home/vscode/project",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/project,type=bind,consistency=delegated",
+  "runArgs": [
+    "--init",
+    "--network=${localWorkspaceFolderBasename}_app-network"
+  ],
+  "forwardPorts": [8080],
+  "initializeCommand": "./.devcontainer/initializeCommand.sh",
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "Vue.volar",
+        "xdebug.php-debug",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "bmewburn.vscode-intelephense-client"
+      ],
+      "settings": {
+        "task.autoDetect": "off",
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "containerEnv": {
+    "APP_PORT": "8080"
+  }
+}

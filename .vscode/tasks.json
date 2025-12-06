@@ -1,0 +1,326 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Format Current File (Prettier)",
+      "type": "shell",
+      "command": "npx prettier --write '${file}'",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "close": true
+      }
+    },
+    {
+      "label": "Lint Current File (ESLint)",
+      "type": "shell",
+      "command": "npx eslint '${file}'",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "alert"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "close": true
+      }
+    },
+    {
+      "label": "Lint & Fix Current File (ESLint)",
+      "type": "shell",
+      "command": "npx eslint '${file}' --fix",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "check"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "close": true
+      }
+    },
+    {
+      "label": "Format Current PHP File (Laravel Pint)",
+      "type": "shell",
+      "command": "composer exec -- pint '${file}'",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "icon": {
+        "color": "terminal.ansiCyan",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "close": true
+      }
+    },
+    {
+      "label": "Setup Project (From Scratch)",
+      "dependsOn": [
+        "Composer: install",
+        "Npm: install",
+        "Database: migrate:fresh --seed",
+        "Artisan: optimize:clear"
+      ],
+      "dependsOrder": "sequence",
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "window"
+      }
+    },
+    {
+      "label": "Dev: Start",
+      "dependsOn": [
+        "Artisan: serve",
+        "Npm: run dev"
+      ],
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "play"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Artisan: serve",
+      "type": "shell",
+      "command": "php artisan serve --host=0.0.0.0 --port=8080",
+      "icon": {
+        "color": "terminal.ansiMagenta",
+        "id": "server"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Composer: install",
+      "type": "shell",
+      "command": "composer install",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "arrow-circle-down"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Composer: update",
+      "type": "shell",
+      "command": "composer update",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "arrow-circle-down"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Composer: dump-autoload",
+      "type": "shell",
+      "command": "composer dump-autoload",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "arrow-circle-down"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Artisan: optimize:clear",
+      "type": "shell",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "command": "php artisan optimize:clear",
+      "problemMatcher": []
+    },
+    {
+      "label": "Artisan: route:list",
+      "type": "shell",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "command": "php artisan route:list",
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: migrate",
+      "type": "shell",
+      "command": "php artisan migrate",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "database"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: migrate:fresh",
+      "type": "shell",
+      "command": "php artisan migrate:fresh",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "database"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Database: migrate:fresh --seed",
+      "type": "shell",
+      "command": "php artisan migrate:fresh --seed",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "database"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Npm: install",
+      "type": "shell",
+      "command": "npm install",
+      "icon": {
+        "color": "terminal.ansiCyan",
+        "id": "rocket"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Npm: run dev",
+      "type": "shell",
+      "dependsOn": ["Npm: install"],
+      "command": "npm run dev",
+      "icon": {
+        "color": "terminal.ansiCyan",
+        "id": "rocket"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE *..*ready in.*",
+          "endsPattern": ".*APP_URL.*"
+        }
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Artisan: Clear All",
+      "type": "shell",
+      "command": "php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan optimize:clear",
+      "icon": {
+        "color": "terminal.ansiCyan",
+        "id": "clear-all"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}
