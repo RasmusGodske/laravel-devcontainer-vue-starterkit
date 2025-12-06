@@ -51,6 +51,12 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN echo 'export PATH="/root/.local/bin:$PATH"' >> /home/vscode/.zshrc
+
+# Install Claude Code CLI globally
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
 RUN chown -R vscode:vscode /home/vscode/project
 RUN chmod -R 700 /home/vscode/project
 
