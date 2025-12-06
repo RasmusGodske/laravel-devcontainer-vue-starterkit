@@ -21,3 +21,5 @@ yarn-error.log
 /.idea
 /.nova
 /.zed
+.claude/python-hooks/hooks.log
+.claude/python-hooks/__pycache__
