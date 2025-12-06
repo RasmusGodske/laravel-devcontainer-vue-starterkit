@@ -54,8 +54,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN echo 'export PATH="/root/.local/bin:$PATH"' >> /home/vscode/.zshrc
 
-# Install Claude Code CLI globally
+# Install Claude Code CLI for vscode user
+USER vscode
 RUN curl -fsSL https://claude.ai/install.sh | bash
+USER root
+RUN echo 'export PATH="$PATH:/home/vscode/.claude/local/bin"' >> /home/vscode/.zshrc
 
 RUN chown -R vscode:vscode /home/vscode/project
 RUN chmod -R 700 /home/vscode/project
