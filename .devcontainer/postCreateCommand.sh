@@ -5,6 +5,9 @@ set -e
 
 cd /home/vscode/project
 
+# Initialize and update git submodules
+git submodule update --init --recursive
+
 # Ensure correct ownership of key directories
 sudo chown -R vscode:vscode /home/vscode/project/vendor
 sudo chown -R vscode:vscode /home/vscode/project/node_modules
