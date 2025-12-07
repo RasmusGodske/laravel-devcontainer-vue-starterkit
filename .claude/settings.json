@@ -1,31 +1,53 @@
 {
   "permissions": {
     "allow": [
+      "WebFetch",
+      "WebSearch",
+      "Glob",
+      "Grep",
+      "LS",
+      "Read",
       "Bash(find:*)",
-      "Bash(./vendor/bin/pint:*)"
+      "Bash(tree:*)",
+      "Bash(composer --version:*)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(php artisan make:model:*)",
+      "Bash(php artisan migrate:*)",
+      "Skill(*)",
+      "mcp__laravel-boost",
+      "mcp__serena"
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/session-start.py"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/python-hooks/format-php.py",
-            "timeout": 60
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/after-write.py"
           }
         ]
       }
     ],
-    "SessionStart": [
+    "Stop": [
       {
-        "matcher": "compact",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/python-hooks/remind-rules.py",
-            "timeout": 10
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/end-of-turn-check.py"
           }
         ]
       }

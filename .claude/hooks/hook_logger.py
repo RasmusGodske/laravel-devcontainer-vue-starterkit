@@ -9,7 +9,6 @@ Provides a centralized logging mechanism for all hook scripts with:
 - Easy-to-use API
 """
 
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -21,25 +20,35 @@ class HookLogger:
     A reusable logger for Claude Code hooks.
 
     Usage:
-        logger = HookLogger("format-php")
+        logger = HookLogger("format-php", session_id="abc123")
         logger.info("Starting PHP formatting")
         logger.success("Formatted MyFile.php", details="Found 5 issues")
         logger.error("Failed to format", details="Syntax error")
     """
 
-    def __init__(self, hook_name: str, log_file: Optional[str] = None):
+    def __init__(self, hook_name: str, session_id: Optional[str] = None, log_file: Optional[str] = None):
         """
         Initialize the logger.
 
         Args:
             hook_name: Name of the hook (e.g., "format-php", "run-tests")
-            log_file: Path to log file (defaults to .claude/python-hooks/hooks.log)
+            session_id: The Claude session ID (truncated to 8 chars in logs)
+            log_file: Path to log file (defaults to .claude/sessions/{session_id}/hooks.log)
         """
         self.hook_name = hook_name
+        self.session_id_short = session_id[:8] if session_id else "--------"
+        self.session_id_full = session_id
 
         if log_file is None:
             script_dir = Path(__file__).parent
-            self.log_file = script_dir / "hooks.log"
+            if session_id:
+                # Session-specific log file
+                session_dir = script_dir.parent / "sessions" / session_id
+                session_dir.mkdir(parents=True, exist_ok=True)
+                self.log_file = session_dir / "hooks.log"
+            else:
+                # Fallback to hooks directory for errors without session
+                self.log_file = script_dir / "hooks.log"
         else:
             self.log_file = Path(log_file)
 
@@ -50,7 +59,7 @@ class HookLogger:
         """Write a log entry to the log file."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Format the log entry
+        # Format the log entry (no session_id needed since it's in the path now)
         log_entry = f"[{timestamp}] [{level}] [{self.hook_name}] {message}"
 
         if details:
@@ -92,38 +101,3 @@ class HookLogger:
                 f.write("-" * 80 + "\n")
         except Exception:
             pass
-
-
-# Convenience function for one-off logging
-def quick_log(hook_name: str, message: str, level: str = "INFO", details: Optional[str] = None):
-    """
-    Quick logging without creating a logger instance.
-
-    Args:
-        hook_name: Name of the hook
-        message: Log message
-        level: Log level (INFO, SUCCESS, WARNING, ERROR)
-        details: Optional additional details
-    """
-    logger = HookLogger(hook_name)
-
-    if level.upper() == "SUCCESS":
-        logger.success(message, details)
-    elif level.upper() == "WARNING":
-        logger.warning(message, details)
-    elif level.upper() == "ERROR":
-        logger.error(message, details)
-    else:
-        logger.info(message, details)
-
-
-if __name__ == "__main__":
-    # Test the logger
-    logger = HookLogger("test-hook")
-    logger.info("This is an info message")
-    logger.success("This is a success message", details="With some details")
-    logger.warning("This is a warning")
-    logger.error("This is an error", details="Stack trace here\nLine 2\nLine 3")
-    logger.separator()
-
-    print(f"Test logs written to: {logger.log_file}")
