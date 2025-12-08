@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Reusable logging utility for Claude Code hooks.
 
@@ -26,7 +25,12 @@ class HookLogger:
         logger.error("Failed to format", details="Syntax error")
     """
 
-    def __init__(self, hook_name: str, session_id: Optional[str] = None, log_file: Optional[str] = None):
+    def __init__(
+        self,
+        hook_name: str,
+        session_id: Optional[str] = None,
+        log_file: Optional[str] = None,
+    ):
         """
         Initialize the logger.
 
@@ -40,7 +44,7 @@ class HookLogger:
         self.session_id_full = session_id
 
         if log_file is None:
-            script_dir = Path(__file__).parent
+            script_dir = Path(__file__).parent.parent  # utils -> hooks
             if session_id:
                 # Session-specific log file
                 session_dir = script_dir.parent / "sessions" / session_id
@@ -64,15 +68,15 @@ class HookLogger:
 
         if details:
             # Indent details for readability
-            details_lines = details.strip().split('\n')
-            formatted_details = '\n'.join(f"    {line}" for line in details_lines)
+            details_lines = details.strip().split("\n")
+            formatted_details = "\n".join(f"    {line}" for line in details_lines)
             log_entry += f"\n{formatted_details}"
 
         log_entry += "\n"
 
         # Append to log file
         try:
-            with open(self.log_file, 'a', encoding='utf-8') as f:
+            with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(log_entry)
         except Exception as e:
             # If logging fails, write to stderr but don't crash
@@ -97,7 +101,7 @@ class HookLogger:
     def separator(self):
         """Write a separator line for visual clarity."""
         try:
-            with open(self.log_file, 'a', encoding='utf-8') as f:
+            with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write("-" * 80 + "\n")
         except Exception:
             pass

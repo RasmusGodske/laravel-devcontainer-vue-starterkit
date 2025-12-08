@@ -22,7 +22,10 @@ yarn-error.log
 /.nova
 /.zed
 .claude/python-hooks/hooks.log
-.claude/python-hooks/__pycache__
 .claude/hooks/hooks.log
-.claude/hooks/__pycache__
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
 .claude/sessions/

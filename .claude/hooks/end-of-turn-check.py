@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from hook_logger import HookLogger
+from utils import HookLogger
 from session_tracker import SessionTracker
 
 
@@ -191,20 +191,20 @@ def main():
         hooks_dir = Path(__file__).parent
         project_dir = str(hooks_dir.parent.parent)  # .claude/hooks -> .claude -> project
 
-        logger.info(f"Running end-of-turn checks for session {session_id[:8]}...")
-
-        # Load files from session tracker
+        # Load session and get tracked files
         tracker = SessionTracker(session_id)
-        files_by_type = tracker.get_files_by_type()
+        session = tracker.session
 
-        php_files = files_by_type.get("php", [])
-        js_files = files_by_type.get("js", [])
+        logger.info(f"Running end-of-turn checks for session {session.short_id}...")
+
+        php_files = session.php_files
+        js_files = session.js_files
 
         if not php_files and not js_files:
             logger.info("No PHP/JS files modified this session")
             sys.exit(0)
 
-        logger.info(f"Found {len(php_files)} PHP and {len(js_files)} JS/TS/Vue files")
+        logger.info(f"Found {len(php_files)} PHP and {len(js_files)} JS/TS/Vue files (total: {session.file_count})")
 
         errors = []
 

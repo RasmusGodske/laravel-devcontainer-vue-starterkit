@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from hook_logger import HookLogger
+from utils import HookLogger
 from session_tracker import SessionTracker, get_file_type
 
 
@@ -98,7 +98,7 @@ def main():
         if session_id and file_type != "other":
             tracker = SessionTracker(session_id)
             tracker.add_file(full_path, file_type)
-            logger.info(f"Tracked {Path(file_path).name} in session {session_id[:8]}...")
+            logger.info(f"Tracked {Path(file_path).name} in session {tracker.session.short_id}...")
 
         # Run syntax check for PHP - block on errors
         if file_type == "php":

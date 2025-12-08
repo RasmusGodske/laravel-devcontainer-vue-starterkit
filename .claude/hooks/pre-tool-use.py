@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from hook_logger import HookLogger
+from utils import HookLogger
 
 
 def get_tool_summary(tool_name: str, tool_input: dict) -> str:
