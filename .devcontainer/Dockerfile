@@ -7,7 +7,7 @@ WORKDIR /home/vscode/project
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y php php-cli php-fpm php-json php-common php-mysql \
        php-zip php-gd php-mbstring php-curl php-xml php-pear php-bcmath \
-       php-pgsql php-redis php-intl php-soap \
+       php-pgsql php-redis php-intl php-soap php-sqlite3 \
        php-dev libzip-dev libsodium-dev libfreetype6-dev libjpeg-turbo8-dev \
        libpng-dev
 
