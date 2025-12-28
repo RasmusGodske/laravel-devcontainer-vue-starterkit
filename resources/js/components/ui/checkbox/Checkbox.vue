@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * Checkbox component wrapping Reka-UI's CheckboxRoot.
+ *
+ * Usage: Use `v-model` (not `v-model:checked`) for two-way binding.
+ *
+ * @example
+ * <Checkbox v-model="form.isActive" />
+ */
 import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-vue-next'
