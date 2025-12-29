@@ -6,8 +6,14 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     server: {
         host: '0.0.0.0',
+        origin: process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173',
+        cors: true,
         hmr: {
-            host: 'localhost',
+            host: process.env.VITE_HMR_HOST || 'localhost',
+            protocol: (process.env.VITE_HMR_PROTOCOL as 'ws' | 'wss') || 'ws',
+            clientPort: process.env.VITE_HMR_CLIENT_PORT
+                ? parseInt(process.env.VITE_HMR_CLIENT_PORT)
+                : undefined,
         },
     },
     plugins: [

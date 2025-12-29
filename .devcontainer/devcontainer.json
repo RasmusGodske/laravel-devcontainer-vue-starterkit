@@ -28,7 +28,8 @@
     "5173": {
       "label": "Vite Hot Module Replacement",
       "onAutoForward": "silent",
-      "requireLocalPort": true
+      "requireLocalPort": true,
+      "visibility": "public"
     }
   },
   "initializeCommand": "./.devcontainer/initializeCommand.sh",

@@ -10,6 +10,7 @@
         "Setup: Ensure npm",
         "Docker: compose up",
         "Setup: Ensure migrated",
+        "Setup: Configure URLs",
         "Artisan: serve",
         "Npm: run dev"
       ],
@@ -112,6 +113,25 @@
         "reveal": "silent",
         "showReuseMessage": false,
         "close": true
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Configure URLs",
+      "type": "shell",
+      "command": "./devtools/configure-urls.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "globe"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always",
+        "showReuseMessage": false
       },
       "options": {
         "cwd": ""
