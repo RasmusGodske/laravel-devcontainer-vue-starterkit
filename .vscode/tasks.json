@@ -2,6 +2,226 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Dev: Start",
+      "dependsOn": [
+        "Setup: Ensure .env",
+        "Setup: Ensure Composer",
+        "Setup: Ensure APP_KEY",
+        "Setup: Ensure npm",
+        "Docker: compose up",
+        "Setup: Ensure migrated",
+        "Artisan: serve",
+        "Npm: run dev"
+      ],
+      "dependsOrder": "sequence",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "play"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Ensure .env",
+      "type": "shell",
+      "command": "./devtools/ensure-env.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "file"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Ensure APP_KEY",
+      "type": "shell",
+      "command": "./devtools/ensure-app-key.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "key"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Ensure Composer",
+      "type": "shell",
+      "command": "./devtools/ensure-composer.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "package"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Ensure npm",
+      "type": "shell",
+      "command": "./devtools/ensure-npm.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "package"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Ensure migrated",
+      "type": "shell",
+      "command": "./devtools/ensure-migrated.sh",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "database"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "options": {
+        "cwd": ""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: compose up",
+      "type": "shell",
+      "command": "docker compose up",
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "package"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[\\+\\] Running",
+          "endsPattern": "(Attaching to|Container.*Started)"
+        }
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
+    },
+    {
+      "label": "Docker: compose down",
+      "type": "shell",
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "window"
+      },
+      "command": "docker compose down",
+      "problemMatcher": []
+    },
+    {
+      "label": "Artisan: serve",
+      "type": "shell",
+      "command": "./devtools/serve.sh 8080 0.0.0.0",
+      "icon": {
+        "color": "terminal.ansiMagenta",
+        "id": "server"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Starting Laravel development server.*",
+          "endsPattern": ".*Server running on.*"
+        }
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
+    },
+    {
+      "label": "Artisan: pail",
+      "type": "shell",
+      "command": "php artisan pail --timeout=0",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "output"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
+    },
+    {
+      "label": "Format Current File (Prettier)",
+      "type": "shell",
+      "command": "npx prettier --write '${file}'",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "close": true
+      }
+    },
+    {
       "label": "Lint Current File (ESLint)",
       "type": "shell",
       "command": "npx eslint '${file}'",
@@ -56,77 +276,6 @@
       }
     },
     {
-      "label": "Docker: compose up",
-      "type": "shell",
-      "command": "docker compose up",
-      "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "package"
-      },
-      "isBackground": true,
-      "problemMatcher": [],
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "Dev: Start",
-      "dependsOn": [
-        "Docker: compose up",
-        "Artisan: serve",
-        "Artisan: pail",
-        "Npm: run dev"
-      ],
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "play"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Artisan: pail",
-      "type": "shell",
-      "command": "php artisan pail --timeout=0",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "output"
-      },
-      "isBackground": true,
-      "problemMatcher": [],
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "Artisan: serve",
-      "type": "shell",
-      "command": "php artisan serve --host=0.0.0.0 --port=8080",
-      "icon": {
-        "color": "terminal.ansiMagenta",
-        "id": "server"
-      },
-      "isBackground": true,
-      "problemMatcher": [],
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
       "label": "Composer: install",
       "type": "shell",
       "command": "composer install",
@@ -140,7 +289,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -158,7 +307,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -176,7 +325,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -196,6 +345,21 @@
       "problemMatcher": []
     },
     {
+      "label": "Artisan: route:list",
+      "type": "shell",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "zap"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "command": "php artisan route:list",
+      "problemMatcher": []
+    },
+    {
       "label": "Database: migrate",
       "type": "shell",
       "command": "php artisan migrate",
@@ -209,7 +373,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -227,7 +391,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -245,7 +409,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
@@ -263,16 +427,13 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       },
       "problemMatcher": []
     },
     {
       "label": "Npm: run dev",
       "type": "shell",
-      "dependsOn": [
-        "Npm: install"
-      ],
       "command": "npm run dev",
       "icon": {
         "color": "terminal.ansiCyan",
@@ -290,12 +451,12 @@
         }
       },
       "presentation": {
-        "focus": true,
-        "panel": "shared",
+        "focus": false,
+        "panel": "dedicated",
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       }
     },
     {
@@ -306,7 +467,6 @@
         "color": "terminal.ansiCyan",
         "id": "clear-all"
       },
-      "isBackground": true,
       "problemMatcher": [],
       "presentation": {
         "focus": true,
@@ -314,7 +474,7 @@
         "reveal": "always"
       },
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": ""
       }
     }
   ]

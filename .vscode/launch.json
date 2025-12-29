@@ -5,13 +5,10 @@
           "name": "🪲 Listen for Xdebug",
           "type": "php",
           "request": "launch",
-          "log":false,
+          "log": false,
           "port": 9003,
           "pathMappings": {
-              // The path where the project files are mounted within the containers running xdebug.
-              // we need to tell xdebug that the files are located in a different path
-              // than within the vscode workspace
-              "/var/www/html": "${workspaceFolder}"
+              "${workspaceFolder}": "${workspaceFolder}"
           }
       }
   ]

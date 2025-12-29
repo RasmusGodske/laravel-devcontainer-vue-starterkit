@@ -1,6 +1,8 @@
 services:
     pgsql:
         image: 'postgres:17'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
         environment:
             PGPASSWORD: '${DB_PASSWORD:-secret}'
             POSTGRES_DB: '${DB_DATABASE}'
@@ -23,6 +25,8 @@ services:
             timeout: 5s
     redis:
         image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
         volumes:
             - 'redis-data:/data'
         networks:
@@ -36,8 +40,7 @@ services:
             timeout: 5s
 networks:
     app-network:
-        external: true
-        name: ${COMPOSE_PROJECT_NAME}_app-network
+        driver: bridge
 volumes:
     pgsql-data:
         driver: local

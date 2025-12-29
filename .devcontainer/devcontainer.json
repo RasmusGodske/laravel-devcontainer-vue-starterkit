@@ -16,10 +16,9 @@
   "workspaceFolder": "/home/vscode/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/project,type=bind,consistency=delegated",
   "runArgs": [
-    "--init",
-    "--network=${localWorkspaceFolderBasename}_app-network"
+    "--init"
   ],
-  "forwardPorts": [8080],
+  "forwardPorts": [8080, 5173],
   "portsAttributes": {
     "8080": {
       "label": "Laravel App",
@@ -53,7 +52,9 @@
   "remoteUser": "vscode",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "dockerDashComposeVersion": "v2"
+    }
   },
   "containerEnv": {
     "APP_PORT": "8080",
