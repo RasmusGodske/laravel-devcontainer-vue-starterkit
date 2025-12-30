@@ -33,6 +33,7 @@ RUN echo "alias art='php artisan'" >> /home/vscode/.zshrc
 RUN echo "alias artisan='php artisan'" >> /home/vscode/.zshrc
 RUN echo "alias test='php artisan test'" >> /home/vscode/.zshrc
 RUN echo "alias migrate='php artisan migrate'" >> /home/vscode/.zshrc
+RUN echo "alias e2e='npm run test:e2e'" >> /home/vscode/.zshrc
 RUN echo 'export PATH="/home/vscode/project/vendor/bin/:$PATH"' >> /home/vscode/.zshrc
 
 # Add Composer global bin directory to PATH
@@ -66,6 +67,27 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
+
+# Install Playwright browser dependencies
+# These are required for running Chromium, Firefox, and WebKit browsers
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get install -y \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2t64 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libatspi2.0-0
 
 # Install Claude Code CLI and uv for vscode user
 USER vscode

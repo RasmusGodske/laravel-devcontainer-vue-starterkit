@@ -29,3 +29,8 @@ __pycache__/
 *.pyc
 *.pyo
 .claude/sessions/
+
+# E2E Testing
+/e2e/reports/
+/playwright-report/
+/test-results/

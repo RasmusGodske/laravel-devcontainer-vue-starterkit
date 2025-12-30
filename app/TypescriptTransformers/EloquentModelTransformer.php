@@ -11,6 +11,7 @@
 
 namespace App\TypescriptTransformers;
 
+use BackedEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
@@ -20,6 +21,9 @@ use Spatie\TypeScriptTransformer\Transformers\Transformer;
 
 class EloquentModelTransformer implements Transformer
 {
+    /**
+     * @param  ReflectionClass<object>  $class
+     */
     public function transform(ReflectionClass $class, string $name): ?TransformedType
     {
         if (! is_subclass_of($class->name, Model::class)) {
@@ -107,8 +111,8 @@ class EloquentModelTransformer implements Transformer
 
     private function mapCastToType(string $cast): string
     {
-        if (enum_exists($cast)) {
-            return implode(' | ', array_map(fn ($case) => sprintf("'%s'", $case->value), $cast::cases()));
+        if (enum_exists($cast) && is_subclass_of($cast, BackedEnum::class)) {
+            return implode(' | ', array_map(fn (BackedEnum $case) => sprintf("'%s'", $case->value), $cast::cases()));
         }
 
         return match ($cast) {
@@ -121,6 +125,10 @@ class EloquentModelTransformer implements Transformer
         };
     }
 
+    /**
+     * @param  ReflectionClass<object>  $class
+     * @return array<int, string>
+     */
     private function getRelationProperties(ReflectionClass $class, Model $modelInstance): array
     {
         $relationProperties = [];
@@ -134,6 +142,9 @@ class EloquentModelTransformer implements Transformer
         return $relationProperties;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function parseRelationsFromDocComment(string $docComment): array
     {
         $relationProperties = [];

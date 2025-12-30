@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72e4029b6b185294c0c0f60a71cb0c9e",
+    "content-hash": "f2a3659ff346d5d160972a950ce0f018",
     "packages": [
         {
             "name": "amphp/amp",
@@ -9660,6 +9660,64 @@
             "time": "2025-07-11T04:10:06+00:00"
         },
         {
+            "name": "rasmusgodske/laravel-vue-rules",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RasmusGodske/laravel-vue-rules.git",
+                "reference": "74b93143d4b339ffe6bfff595c1b8d9f0a22051e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RasmusGodske/laravel-vue-rules/zipball/74b93143d4b339ffe6bfff595c1b8d9f0a22051e",
+                "reference": "74b93143d4b339ffe6bfff595c1b8d9f0a22051e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0|^12.0",
+                "illuminate/filesystem": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "RasmusGodske\\LaravelVueRules\\TechstackRulesServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "RasmusGodske\\LaravelVueRules\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "RasmusGodske",
+                    "homepage": "https://github.com/RasmusGodske"
+                }
+            ],
+            "description": "Laravel/Vue convention rules for Claude Code",
+            "keywords": [
+                "claude",
+                "conventions",
+                "laravel",
+                "rules",
+                "vue"
+            ],
+            "support": {
+                "issues": "https://github.com/RasmusGodske/laravel-vue-rules/issues",
+                "source": "https://github.com/RasmusGodske/laravel-vue-rules/tree/main"
+            },
+            "time": "2025-12-30T15:35:02+00:00"
+        },
+        {
             "name": "rector/rector",
             "version": "2.2.11",
             "source": {
@@ -10838,7 +10896,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "rasmusgodske/laravel-vue-rules": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

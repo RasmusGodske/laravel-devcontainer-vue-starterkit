@@ -11,6 +11,8 @@ This Laravel starter kit includes:
 - **Code quality tools** including Pint formatting and Git hooks
 - **IDE enhancements** for better developer experience
 - **PostgreSQL** and **Redis** for database and caching
+- **E2E Testing** with Playwright for browser automation
+- **Claude Code Rules** for AI-assisted development with consistent conventions
 
 ## Why No Laravel Sail?
 
@@ -36,6 +38,8 @@ Follow these steps in order to recreate the starter kit:
 10. **[Type Inertia Shared Data](10-type-inertia-shared-data.md)** - Implement type-safe shared data for Inertia.js
 11. **[Install Laravel Debugbar](11-install-laravel-debugbar.md)** - Add debugging tools for development
 12. **[Frontend Code Quality Enhancement](12-frontend-code-quality-enhancement.md)** - Enhance ESLint and Prettier for better Vue.js development
+13. **[E2E Testing](13-e2e-testing.md)** - Set up Playwright for end-to-end testing
+14. **[Claude Code Rules](14-claude-code-rules.md)** - Configure coding conventions for AI-assisted development
 
 ## Quick Start
 

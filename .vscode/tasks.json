@@ -46,7 +46,7 @@
       "command": "./devtools/ensure-app-key.sh",
       "icon": {
         "color": "terminal.ansiYellow",
-        "id": "key"
+        "id": "key",
       },
       "presentation": {
         "focus": false,
@@ -128,10 +128,11 @@
         "id": "globe"
       },
       "presentation": {
-        "focus": true,
+        "focus": false,
         "panel": "shared",
-        "reveal": "always",
-        "showReuseMessage": false
+        "reveal": "silent",
+        "showReuseMessage": false,
+        "close": true
       },
       "options": {
         "cwd": ""
@@ -195,25 +196,6 @@
           "endsPattern": ".*Server running on.*"
         }
       },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "Artisan: pail",
-      "type": "shell",
-      "command": "php artisan pail --timeout=0",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "output"
-      },
-      "isBackground": true,
-      "problemMatcher": [],
       "presentation": {
         "focus": false,
         "panel": "dedicated",

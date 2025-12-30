@@ -45,7 +45,9 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[Typescript]
 class User extends Authenticatable
 {
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     /**

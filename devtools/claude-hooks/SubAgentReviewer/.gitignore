@@ -1,0 +1,12 @@
+# Sessions directory (generated at runtime)
+sessions/
+
+# Log files
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/

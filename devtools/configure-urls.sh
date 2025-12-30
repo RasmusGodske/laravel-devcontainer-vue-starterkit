@@ -57,6 +57,7 @@ configure_codespaces_browser() {
 
     echo "✓ Configured for Codespaces browser access"
     echo "  APP_URL: ${codespace_url}"
+    echo "  VITE_DEV_SERVER_URL: ${vite_dev_server_url}"
     echo "  ASSET_URL: ${vite_dev_server_url}"
 }
 

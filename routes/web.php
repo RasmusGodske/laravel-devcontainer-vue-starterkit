@@ -15,3 +15,8 @@ Route::get('dashboard', function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+// E2E Testing routes - ONLY available in local and testing environments
+if (app()->isLocal() || app()->environment('testing')) {
+    require __DIR__.'/e2e.php';
+}

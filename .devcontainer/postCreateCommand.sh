@@ -24,6 +24,12 @@ fi
 if [ -f /home/vscode/project/package.json ]; then
   echo "Package.json found, running npm install..."
   npm install
+
+  # Install Playwright browsers if @playwright/test is a dependency
+  if grep -q "@playwright/test" /home/vscode/project/package.json; then
+    echo "Playwright found, installing browsers..."
+    npx playwright install chromium
+  fi
 else
   echo "No package.json found, skipping npm install."
 fi
