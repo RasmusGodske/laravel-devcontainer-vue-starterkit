@@ -1,0 +1,10 @@
+# Python virtual environment (created by uv)
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# uv lockfile (regenerated on demand)
+uv.lock

@@ -24,6 +24,18 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $CLAUDE_PROJECT_DIR/devtools/claude-hooks/E2EPathValidator && uv run python main.py",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
     "SubagentStart": [
       {
         "hooks": [
