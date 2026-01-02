@@ -36,6 +36,7 @@ class E2EPathValidatorService:
         "Read",
         "Glob",
         "Grep",
+        "Bash",  # For running php artisan route:list
     ]
 
     def __init__(

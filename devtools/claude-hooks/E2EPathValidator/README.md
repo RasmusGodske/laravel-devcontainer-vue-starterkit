@@ -1,53 +1,61 @@
 # E2EPathValidator
 
-Pre-tool hook that validates E2E test file paths using Claude Agent SDK.
+Pre-tool hook that validates E2E route test file paths using Claude Agent SDK.
 
 ## The Problem
 
-E2E test directories often need to follow specific conventions (e.g., mirroring the pages/views structure). Developers and AI agents may accidentally create tests in the wrong location, following URL routes instead of the actual file structure.
+E2E route tests must:
+1. Be placed in `e2e/tests/routes/`
+2. Have directory names that **exactly match** Laravel route segments
+3. Correspond to an actual Laravel route
+
+Developers and AI agents may accidentally create tests for non-existent routes or use incorrect directory naming.
 
 ## The Solution
 
-This hook intercepts `Write` and `Edit` tool calls for E2E test files and uses Claude Agent SDK to validate the path against the project's conventions.
+This hook intercepts `Write` and `Edit` tool calls for E2E test files in `e2e/tests/routes/` and uses Claude Agent SDK to:
+1. Check if the route actually exists via `php artisan route:list`
+2. Validate directory names exactly match Laravel route segments
+3. Provide helpful feedback with the correct path when blocking
 
 **Key benefits:**
-- **Flexible** - Claude reads your project's rules, not hardcoded logic
-- **Project-agnostic** - Works with any project that has E2E conventions defined
-- **Helpful feedback** - Provides the correct path when blocking
-- **Programmatic** - Uses Claude Agent SDK for reliable, structured interaction
+- **Route validation** - Verifies the route exists before allowing test creation
+- **Exact matching** - Ensures directory names match Laravel routes exactly
+- **Helpful feedback** - Shows the correct path or available routes when blocking
+- **Scoped** - Only validates files in `e2e/tests/routes/`, ignores other test types
 
 ## How It Works
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│ Claude calls    │────▶│ PreToolUse hook  │────▶│ Is E2E test?    │
-│ Write/Edit tool │     │ fires            │     │                 │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                        │
-                              ┌─────────────────────────┘
-                              ▼
-                       ┌──────────────────┐
-                  NO   │ Allow operation  │
-             ┌────────▶│                  │
-             │         └──────────────────┘
-             │
-      ┌──────┴───────┐
-      │ YES          │
-      ▼              │
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────┐
+│ Claude calls    │────▶│ PreToolUse hook  │────▶│ In e2e/tests/routes?│
+│ Write/Edit tool │     │ fires            │     │                     │
+└─────────────────┘     └──────────────────┘     └─────────────────────┘
+                                                       │
+                             ┌─────────────────────────┘
+                             ▼
+                      ┌──────────────────┐
+                 NO   │ Allow operation  │
+            ┌────────▶│ (not a route test)│
+            │         └──────────────────┘
+            │
+     ┌──────┴───────┐
+     │ YES          │
+     ▼              │
 ┌──────────────────┐ │
 │ Run Claude Agent │ │
 │ SDK validation   │ │
 └──────────────────┘ │
-      │              │
-      ▼              │
+     │              │
+     ▼              │
 ┌──────────────────┐ │     ┌──────────────────┐
-│ Agent reads      │ │     │ Block with       │
-│ project rules    │─┼────▶│ helpful message  │
-│ and validates    │ │     └──────────────────┘
+│ Agent runs:      │ │     │ Block with       │
+│ 1. route:list    │─┼────▶│ helpful message  │
+│ 2. Check naming  │ │     └──────────────────┘
 └──────────────────┘ │            ▲
-      │              │            │ BLOCK
-      │ ALLOW        │            │
-      └──────────────┴────────────┘
+     │              │            │ BLOCK (route missing
+     │ ALLOW        │            │ or bad naming)
+     └──────────────┴────────────┘
 ```
 
 ## Project Structure
@@ -103,22 +111,32 @@ Add to `.claude/settings.json`:
 
 ## How Claude Validates
 
-When triggered, the hook uses Claude Agent SDK to:
+When triggered for files in `e2e/tests/routes/`, the hook uses Claude Agent SDK to:
 
-1. Read the project's E2E test conventions from `.claude/rules/`
-2. Check if the corresponding page/view file exists
-3. Return `<decision>allow</decision>` or `<decision>block</decision><reason>...</reason>`
+1. Extract the expected Laravel route from the test path
+2. Run `php artisan route:list` to verify the route exists
+3. Check that all directory names match route segments exactly
+4. Return `<decision>allow</decision>` or `<decision>block</decision><reason>...</reason>`
 
-The agent has access to `Read`, `Glob`, and `Grep` tools to explore the project.
+The agent has access to `Read`, `Glob`, `Grep`, and `Bash` tools.
 
 ## Example Output
 
-When Claude blocks an invalid path:
+When Claude blocks a non-existent route:
 
 ```json
 {
   "decision": "block",
-  "reason": "The test path `e2e/tests/Feature/Settings/Users/Index/smoke.spec.ts` is incorrect.\n\n**Problem:** There is no page at `resources/js/Pages/Feature/Settings/Users/Index.vue`\n\n**Actual page location:** `resources/js/Pages/Feature/Users/Index.vue`\n\n**Correct test path:** `e2e/tests/Feature/Users/Index/smoke.spec.ts`"
+  "reason": "The route for test path `e2e/tests/routes/app/non_existent/index/smoke.spec.ts` does not exist.\n\n**Expected route:** `GET /app/non_existent`\n\n**Suggestion:** Run `php artisan route:list --method=GET` to find available routes."
+}
+```
+
+When Claude blocks mismatched directory names:
+
+```json
+{
+  "decision": "block",
+  "reason": "The test path `e2e/tests/routes/app/commission-plans/index/smoke.spec.ts` does not match the Laravel route.\n\n**Problem:** Directory `commission-plans` should be `commission_plans` to match route `/app/commission_plans`.\n\n**Correct path:** `e2e/tests/routes/app/commission_plans/index/smoke.spec.ts`"
 }
 ```
 
@@ -133,19 +151,19 @@ When Claude blocks an invalid path:
 ```bash
 cd /path/to/project
 
-# Test with an E2E test path (Claude will validate)
+# Test with a route test path (Claude will validate)
 echo '{
   "tool": "Write",
   "input": {
-    "file_path": "e2e/tests/Feature/Example/smoke.spec.ts"
+    "file_path": "e2e/tests/routes/app/users/index/smoke.spec.ts"
   }
 }' | cd devtools/claude-hooks/E2EPathValidator && uv run python main.py
 
-# Test with a non-E2E file (should allow immediately)
+# Test with a non-route E2E file (should allow immediately)
 echo '{
   "tool": "Write",
   "input": {
-    "file_path": "src/services/UserService.ts"
+    "file_path": "e2e/tests/components/Button.spec.ts"
   }
 }' | cd devtools/claude-hooks/E2EPathValidator && uv run python main.py
 
@@ -167,6 +185,6 @@ This ensures the hook never blocks development due to technical issues.
 Edit `prompt.md` to customize:
 - What conventions to check
 - How to format error messages
-- What files to look for
+- What routes to validate
 
 The prompt uses `{file_path}` as a placeholder for the path being validated.
