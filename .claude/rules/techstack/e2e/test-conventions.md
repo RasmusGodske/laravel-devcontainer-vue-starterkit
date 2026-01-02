@@ -10,37 +10,59 @@ Guidelines for writing Playwright E2E tests.
 
 ## Test Directory Structure
 
-**CRITICAL:** Test directories MUST mirror the structure of `resources/js/Pages/`, with each Vue page becoming a directory containing multiple test files.
+**CRITICAL:** Route-based tests MUST be placed in `e2e/tests/routes/` with directory names that **exactly match** Laravel route segments.
 
 ```
-resources/js/Pages/                    e2e/tests/
-├── App/                               ├── App/
-│   └── Commissions/                   │   └── Commissions/
-│       ├── Index.vue          →       │       ├── Index/
-│       │                              │       │   ├── filtering.spec.ts
-│       │                              │       │   ├── sorting.spec.ts
-│       │                              │       │   └── bulk-actions.spec.ts
-│       ├── Create.vue         →       │       ├── Create/
-│       │                              │       │   ├── validation.spec.ts
-│       │                              │       │   └── submission.spec.ts
-│       └── Edit.vue           →       │       └── Edit/
-│                                      │           └── update-fields.spec.ts
-└── Auth/                              └── Auth/
-    └── Login.vue              →           └── Login/
-                                               ├── form.spec.ts
-                                               └── validation.spec.ts
+Laravel Routes                         e2e/tests/routes/
+GET /login                    →        ├── login/
+                                       │   └── smoke.spec.ts
+GET /register                 →        ├── register/
+                                       │   └── smoke.spec.ts
+GET /dashboard                →        ├── dashboard/
+                                       │   ├── smoke.spec.ts
+                                       │   └── widgets.spec.ts
+GET /app/users                →        ├── app/
+                                       │   └── users/
+                                       │       ├── index/
+                                       │       │   ├── smoke.spec.ts
+                                       │       │   └── filtering.spec.ts
+                                       │       ├── create/
+                                       │       │   └── smoke.spec.ts
+                                       │       └── {user}/
+                                       │           └── edit/
+                                       │               └── smoke.spec.ts
 ```
 
-### Directory Naming
+### Directory Naming Rules
 
-- **Use PascalCase** to match Vue pages exactly
-- `resources/js/Pages/App/Dashboard/Index.vue` → `e2e/tests/App/Dashboard/Index/`
+1. **Match Laravel routes exactly** - Directory names must match route segments character-for-character
+2. **Use snake_case if route uses it** - `/commission_plans` → `commission_plans/` (NOT `commission-plans/`)
+3. **Use route parameters as-is** - `/users/{user}` → `users/{user}/`
+4. **Add `index/` for index routes** - `/app/users` (list view) → `app/users/index/`
+
+### Why Route-Based?
+
+- **Validation** - The E2EPathValidator hook verifies routes exist via `php artisan route:list`
+- **Consistency** - Test structure matches backend routes, not frontend implementation
+- **Discovery** - Easy to find tests for a specific endpoint
+
+### Non-Route Tests
+
+Tests that don't correspond to specific routes go in other directories:
+
+```
+e2e/tests/
+├── routes/              # Route-based tests (validated by hook)
+├── api/                 # API-only tests
+├── flows/               # Multi-page user flows
+└── components/          # Isolated component tests
+```
 
 ### Test File Naming
 
 - **Use kebab-case** for test file names
 - Name files by **feature/functionality**, not by scenario
-- Keep names concise but descriptive
+- Every route directory MUST have a `smoke.spec.ts`
 
 ```
 Good:
@@ -49,7 +71,6 @@ Good:
 ├── validation.spec.ts     # Form validation tests
 ├── crud.spec.ts           # Basic CRUD operations
 ├── permissions.spec.ts    # Access control tests
-├── bulk-actions.spec.ts   # Bulk operation tests
 
 Avoid:
 ├── filter-by-date-range-and-status.spec.ts  # Too specific
@@ -117,7 +138,7 @@ test.describe('Feature Name', () => {
 Use nested `test.describe()` blocks to organize related scenarios within a file:
 
 ```typescript
-// e2e/tests/App/Commissions/Index/filtering.spec.ts
+// e2e/tests/routes/app/users/index/filtering.spec.ts
 test.describe('Filtering', () => {
   test.describe('by date range', () => {
     test('filters results when date range selected', async ({ authenticatedPage }) => {
@@ -195,10 +216,12 @@ test('test 2', async ({ authenticatedPage }) => {
 
 | Aspect | Convention |
 |--------|------------|
-| Directory case | PascalCase (matches Vue pages) |
+| Route tests location | `e2e/tests/routes/` |
+| Directory case | Match Laravel route exactly (usually snake_case) |
 | File names | kebab-case |
 | File content | Feature-focused, multiple scenarios |
 | Grouping | Use `test.describe()` for sub-features |
 | Test names | Descriptive behavior statements |
 | Auth tests | Use `authenticatedPage` fixture |
 | No-auth tests | Use `page` fixture directly |
+| Required files | Every route needs `smoke.spec.ts` |

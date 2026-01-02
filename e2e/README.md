@@ -44,7 +44,7 @@ npm run test:e2e:report
 
 ```bash
 # Run a specific test file
-npx playwright test e2e/tests/smoke.spec.ts
+npx playwright test e2e/tests/routes/login/smoke.spec.ts
 
 # Run tests matching a pattern
 npx playwright test --grep "login"
@@ -57,19 +57,49 @@ npx playwright test --project=chromium
 
 ```
 e2e/
-├── fixtures/              # Test fixtures and helpers
-│   ├── base.fixture.ts    # Extended test with custom fixtures
-│   ├── test-data.ts       # Test data creation helpers
-│   └── console-errors.ts  # Console error collector
-├── tests/                 # Test files
-│   └── smoke.spec.ts      # Smoke tests
+├── fixtures/                    # Test fixtures and helpers
+│   ├── base.fixture.ts          # Extended test with custom fixtures
+│   ├── test-data.ts             # Test data creation helpers
+│   └── console-errors.ts        # Console error collector
+├── tests/
+│   ├── routes/                  # Route-based tests (validated by hook)
+│   │   ├── login/
+│   │   │   └── smoke.spec.ts
+│   │   ├── register/
+│   │   │   └── smoke.spec.ts
+│   │   └── dashboard/
+│   │       └── smoke.spec.ts
+│   └── flows/                   # Multi-page user flows
+│       └── authentication.spec.ts
 ├── scripts/
-│   └── e2e-server.sh      # Server startup script
-├── reports/               # Test reports (gitignored)
-│   ├── html/              # HTML report
-│   └── test-results/      # Test artifacts
-└── README.md              # This file
+│   └── e2e-server.sh            # Server startup script
+├── reports/                     # Test reports (gitignored)
+│   ├── html/                    # HTML report
+│   └── test-results/            # Test artifacts
+└── README.md                    # This file
 ```
+
+### Route-Based Test Structure
+
+Tests in `e2e/tests/routes/` must mirror Laravel routes exactly:
+
+```
+Laravel Route          →    Test Directory
+GET /login             →    e2e/tests/routes/login/
+GET /register          →    e2e/tests/routes/register/
+GET /dashboard         →    e2e/tests/routes/dashboard/
+GET /app/users         →    e2e/tests/routes/app/users/index/
+```
+
+**Important:** The E2EPathValidator hook validates that test paths correspond to actual Laravel routes.
+
+### Non-Route Tests
+
+Tests that don't correspond to specific routes go in other directories:
+
+- `flows/` - Multi-page user flows (login → dashboard → logout)
+- `api/` - API-only tests
+- `components/` - Isolated component tests
 
 ## Fixtures
 

@@ -33,10 +33,12 @@ e2e/
 │   ├── base.fixture.ts          # Extended test with authenticatedPage
 │   ├── test-data.ts             # Helper for API-based test data
 │   └── console-errors.ts        # Console error collection utility
-├── pages/                       # Page Object Models (mirrors resources/js/Pages/)
+├── pages/                       # Page Object Models
 ├── scripts/
 │   └── e2e-server.sh            # Server startup script
-├── tests/                       # Test files (mirrors resources/js/Pages/)
+├── tests/
+│   ├── routes/                  # Route-based tests (validated by hook)
+│   └── flows/                   # Multi-page user flows
 └── README.md                    # Project-specific quick start
 ```
 
@@ -67,7 +69,7 @@ Tests create data through `/e2e/*` API endpoints (local env only):
 
 ### 4. Smoke Tests
 
-Every page should have smoke tests that verify:
+Every route should have smoke tests that verify:
 - Page loads without console errors
 - Basic content is visible
 - See `smoke-tests.md` for pattern
@@ -75,15 +77,15 @@ Every page should have smoke tests that verify:
 ## Quick Example
 
 ```typescript
-import { test, expect } from '../../../../fixtures/base.fixture'
-import { createConsoleErrorCollector } from '../../../../fixtures/console-errors'
+import { test, expect } from '../../../fixtures/base.fixture'
+import { createConsoleErrorCollector } from '../../../fixtures/console-errors'
 
 test.describe('Dashboard', () => {
   test('page loads without console errors', async ({ authenticatedPage }) => {
     const { page } = authenticatedPage
     const errorCollector = createConsoleErrorCollector(page)
 
-    await page.goto('/app/dashboard')
+    await page.goto('/dashboard')
     await page.waitForLoadState('networkidle')
 
     expect(errorCollector.getErrors()).toEqual([])
@@ -117,9 +119,21 @@ npm run e2e:debug        # Debug mode
 
 | Aspect | Convention |
 |--------|------------|
-| **Test directories** | Mirror `resources/js/Pages/` with PascalCase |
+| **Route tests** | Place in `e2e/tests/routes/` matching Laravel routes |
+| **Directory names** | Match Laravel route segments exactly |
 | **Test files** | kebab-case, feature-focused names |
-| **Smoke tests** | Every page needs `smoke.spec.ts` |
+| **Smoke tests** | Every route needs `smoke.spec.ts` |
 | **Auth tests** | Use `authenticatedPage` fixture |
 | **No-auth tests** | Use `page` fixture directly |
 | **Port** | 8081 (E2E), 8080 (dev) |
+
+## Route-Based Test Validation
+
+The E2EPathValidator hook validates that tests in `e2e/tests/routes/` correspond to actual Laravel routes:
+
+```
+Laravel Route          →    Test Directory
+GET /login             →    e2e/tests/routes/login/
+GET /dashboard         →    e2e/tests/routes/dashboard/
+GET /app/users         →    e2e/tests/routes/app/users/index/
+```
