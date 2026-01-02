@@ -72,7 +72,8 @@ def main() -> int:
         return 0
 
     # Extract file path from tool input
-    tool_input = input_data.get("input", {})
+    # Claude Code uses "tool_input" key, not "input"
+    tool_input = input_data.get("tool_input", input_data.get("input", {}))
     file_path = tool_input.get("file_path", "")
 
     if not file_path:
