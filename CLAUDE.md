@@ -8,44 +8,195 @@ Laravel + Vue.js starter template with AI-assisted development tooling.
 
 **Development Environment:** Devcontainer with PHP running directly (no Sail)
 
+**⚠️ IMPORTANT:** This is a **LOCAL development environment** with test data. You do NOT have access to production systems. When debugging production issues reported by users, you can only review code, architecture, and logs - you cannot query production data.
+
+---
+
+## Agent System
+
+### ⚠️ CRITICAL: Use `software-engineer` for Implementation
+
+**NEVER write code directly.** When the user requests implementation work (creating features, fixing bugs, refactoring), delegate to the `software-engineer` agent.
+
+| Task Type | Action |
+|-----------|--------|
+| Investigation, research, exploring code | Do directly |
+| Understanding errors, reading logs | Do directly |
+| Proposing solutions, discussing approaches | Do directly |
+| **Writing/modifying code** | **Use `software-engineer` agent** |
+| **Creating new files** | **Use `software-engineer` agent** |
+| **Refactoring** | **Use `software-engineer` agent** |
+
+**Why?** The `software-engineer` agent delegates to specialized engineers and uses `review:code` for code review, catching convention violations and issues before they become problems.
+
+**How to invoke:**
+```
+Task(
+  description: "Implement [brief description]",
+  prompt: "[USER'S REQUEST WITH CONTEXT]",
+  subagent_type: "software-engineer"
+)
+```
+
+### Available Agents
+
+| Agent | Purpose |
+|-------|---------|
+| `software-engineer` | Orchestrates implementation + review via `review:code` |
+| `architecture-reviewer` | Reviews code organization and patterns |
+| `frontend-engineer` | Vue/TypeScript implementation |
+| `frontend-reviewer` | Reviews Vue/TypeScript code |
+
+---
+
+## ⚠️ CRITICAL: Alignment Before Implementation
+
+**ALWAYS align with the user before writing code.** Never jump straight into implementation.
+
+1. **Understand the Request**
+   - Ask clarifying questions if anything is unclear
+   - Confirm your understanding of the requirements
+   - Identify any ambiguities or edge cases
+
+2. **Propose a Solution**
+   - Present your planned approach clearly and concisely
+   - Explain which files you'll modify or create
+   - Mention any architectural decisions or trade-offs
+   - Wait for user approval before proceeding
+
+3. **Stay Within Scope**
+   - **ONLY implement what was explicitly requested or agreed upon**
+   - **NEVER add "nice-to-have" features** without asking first
+   - **DO NOT add fields, statuses, or features** that weren't discussed
+
+4. **Seek Approval for Changes**
+   - If you identify improvements during implementation, **STOP and ask** before adding them
+   - What seems obvious to you may not align with the user's vision
+
+---
+
+## ⚠️ CRITICAL: Always Verify Quality Checks (Tarnished)
+
+**Before completing ANY implementation task, run `tarnished status`** to see which checks need re-running.
+
+### What is Tarnished?
+
+**Tarnished** is a CLI tool that tracks which quality checks need re-running after code changes. It solves a critical problem: **Claude Code often forgets to run tests/linters after making changes**, leaving the codebase in an unknown state.
+
+Think of it like this:
+- When you **modify files**, those files become "tarnished" (dirty, needs checking)
+- When you **run a check successfully**, those files become "clean" (verified working)
+- Tarnished **remembers** which files were clean when each check last passed
+
+### Why Does This Exist?
+
+Without tarnished, this happens constantly:
+1. Claude modifies 5 PHP files
+2. Claude runs `test:php` - tests pass
+3. Claude modifies 2 more PHP files
+4. Claude says "Done!" - **but never re-ran tests after step 3**
+5. User discovers broken tests later
+
+With tarnished:
+1. Claude modifies 5 PHP files → `test:php` becomes **tarnished**
+2. Claude runs `test:php` - tests pass → `test:php` becomes **clean**
+3. Claude modifies 2 more PHP files → `test:php` becomes **tarnished** again
+4. Claude runs `tarnished status` → sees `test:php` is tarnished
+5. Claude runs `test:php` again → tests pass → **clean**
+6. Claude says "Done!" - with confidence everything works
+
+### Profile Statuses
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| `clean` | No files changed since check last passed | Safe to skip |
+| `tarnished` | Files changed since last pass | **MUST re-run** |
+| `never_saved` | Check has never passed | **MUST run** |
+
+### Commands
+
+```bash
+tarnished status              # Check all profiles (use frequently!)
+# {"lint:php": "tarnished", "lint:js": "clean", "test:php": "tarnished"}
+
+tarnished check lint:php      # Check specific profile
+# Exit code: 0 = clean, 1 = tarnished
+```
+
+### ⚠️ The Mindset
+
+**If a check is tarnished, you MUST run it before completing your task.**
+
+This is non-negotiable. The workflow is:
+1. Make code changes
+2. Run `tarnished status` to see what's tarnished
+3. Run ALL tarnished checks relevant to your changes
+4. If any check fails → **FIX IT** → re-run
+5. Only mark your task complete when relevant profiles are clean
+
+**Never say "Done" with tarnished checks.**
+
 ---
 
 ## Development Commands
 
-Use the devtools scripts - they include change tracking and AI diagnosis:
+Use the devtools scripts instead of raw commands. They include environment setup and AI-powered failure diagnosis via `lumby`:
 
-| Command | Purpose |
-|---------|---------|
-| `test:php` | Run PHPUnit tests |
-| `test:php --filter=Name` | Run specific test |
-| `lint:php` | PHPStan static analysis |
-| `lint:js` | ESLint |
-| `lint:ts` | TypeScript type check |
-| `review:code "prompt"` | AI code review via reldo |
-| `qa` | Run all quality checks |
-| `tarnished status` | See what checks need re-running |
+| Command | Wraps | Accepts |
+|---------|-------|---------|
+| `test:php` | `php artisan test` | All artisan test flags (`--filter`, `--parallel`, file paths) |
+| `lint:php` | `./vendor/bin/phpstan` | All PHPStan flags (`--generate-baseline`, etc.) |
+| `lint:js` | ESLint | File paths |
+| `lint:ts` | vue-tsc (TypeScript) | File paths |
+| `review:code` | `reldo review` | `PROMPT` (positional), `--verbose`, `--exit-code` |
+| `qa` | All checks | `--skip-phpstan`, `--skip-eslint` |
 
-**Starting the dev environment:**
-- Use the "Dev: Start" VS Code task, or:
 ```bash
-composer dev
+# PHP Tests
+test:php                        # Run all tests
+test:php --filter=TestName      # Run specific test(s)
+test:php tests/Feature/Dir/     # Run tests in a directory
+
+# Static Analysis
+lint:php                        # Run PHPStan
+lint:js                         # Run ESLint on all files
+lint:ts                         # Run TypeScript type-check
+
+# Code Review
+review:code "Review my changes"           # AI code review
+review:code "Review app/Models/" --verbose
+
+# Run All Checks
+qa                              # Run all quality checks
+qa --skip-phpstan               # Skip PHPStan
 ```
+
+**Why devtools?** These scripts auto-setup the environment and use `lumby` for AI diagnosis on failures—reducing context usage in your session.
 
 ---
 
 ## Dev Environment
 
+### Starting the Environment
+
+**VS Code Task (recommended):**
+- Press `Ctrl+Shift+P` → "Tasks: Run Task" → "Dev: Start"
+
+**CLI:**
+```bash
+dev:start              # Full setup + services
+dev:start --quick      # Services only (skip setup)
+```
+
 ### Orchestration Commands
 
 | Command | Purpose |
 |---------|---------|
-| `dev:start` | Start everything (setup + services) - for CI/headless |
+| `dev:start` | Start everything (setup + services) |
 | `dev:start --quick` | Start services only (skip setup) |
 | `dev:stop` | Stop app services (keeps Docker running) |
 | `dev:stop --all` | Stop all services including Docker |
 | `dev:status` | Show status of all services |
-
-**Note:** For interactive development, use the VS Code "Dev: Start" task which shows each step in its own terminal. The `dev:start` script is designed for CI/headless environments.
 
 ### Service Commands
 
@@ -59,38 +210,31 @@ Long-running services run in tmux sessions, allowing both VS Code and Claude to 
 | Vite | `service:vite` | Vite HMR dev server (port 5173) |
 | Logs | `service:logs` | Laravel Pail log tailing |
 
-Each service supports these subcommands:
+Each service supports:
 
 ```bash
 service:serve start             # Start the service
 service:serve start --attach    # Start and attach to see output
 service:serve stop              # Stop the service
 service:serve restart           # Restart the service
-service:serve restart --attach  # Restart and attach
 service:serve status            # Check if running (exit code 0 = running)
 service:serve logs 50           # Show last 50 lines of output
 service:serve logs --watch      # Follow logs continuously
-service:serve logs 100 --watch  # Follow last 100 lines
-service:serve attach            # Attach to tmux session (interactive)
 ```
 
 ### Checking Service Health
 
 ```bash
-# Human-readable status
-dev:status
-
-# JSON output (for scripts/automation)
-dev:status --json
-# {"database": "running", "cache": "running", "serve": "running", "vite": "stopped", "logs": "stopped"}
+dev:status                      # Human-readable status
+dev:status --json               # JSON output for scripts
 ```
 
 ### Troubleshooting
 
 **User reports an error → Check the logs:**
 ```bash
-service:serve logs 100    # See recent Laravel server output
-service:logs start        # Start log tailing to watch for errors
+service:serve logs 100          # See recent Laravel server output
+service:logs start              # Start log tailing to watch for errors
 ```
 
 **Service not responding → Restart it:**
@@ -98,41 +242,6 @@ service:logs start        # Start log tailing to watch for errors
 service:serve restart
 service:vite restart
 ```
-
-**Check if services are healthy before running tests:**
-```bash
-dev:status --json | grep -q '"serve": "running"' && echo "Server is up"
-```
-
-### How It Works
-
-Services run in named tmux sessions (`dev-database`, `dev-cache`, `dev-serve`, `dev-vite`, `dev-logs`). This means:
-
-- **Persistence**: Services survive terminal closure
-- **Shared access**: VS Code terminals and Claude can both see/control them
-- **No duplicates**: Starting an already-running service just reports status
-- **Logs available**: Output is captured in tmux scrollback buffer
-
----
-
-## Quality Check Workflow
-
-After making changes, always check what needs re-running:
-
-```bash
-tarnished status
-# {"lint:php": "tarnished", "test:php": "tarnished", "lint:js": "clean"}
-
-# Run the tarnished checks
-lint:php
-test:php
-
-# Verify all clean
-tarnished status
-# {"lint:php": "clean", "test:php": "clean", "lint:js": "clean"}
-```
-
-**If a check is tarnished, run it before completing your task.**
 
 ---
 
@@ -155,20 +264,23 @@ tarnished status
 
 ## Rules System
 
-Rules in `.claude/rules/` auto-load based on file paths:
-
-- `techstack/` - Shared conventions (synced via `php artisan dev-rules:update`)
-- `project/` - Your custom rules (not synced)
-
-To add a custom rule, create a file in `.claude/rules/project/backend/` or `frontend/` with:
+Rules in `.claude/rules/` auto-load based on file paths via YAML frontmatter:
 
 ```yaml
 ---
 paths: app/Services/**/*.php
 ---
-
-# Your rule content here
+# Rule content here...
 ```
+
+**How it works:**
+- Edit a `.php` file → backend rules auto-load
+- Edit a `.vue` file → frontend rules auto-load
+- Rules without `paths` frontmatter load for all files
+
+**Directories:**
+- `techstack/` - Shared conventions (synced via `php artisan dev-rules:update`)
+- `project/` - Your custom rules (not synced)
 
 ---
 
@@ -178,11 +290,14 @@ paths: app/Services/**/*.php
 .claude/           # Claude Code configuration
   rules/           # Auto-loading code conventions
   agents/          # Specialized task agents
+  hooks/           # Session hooks (user profile)
+  skills/          # On-demand skills (/setup-profile)
   settings.json    # Permissions, plugins, MCP servers
 .tarnished/        # Change tracking configuration
 .reldo/            # Code review configuration
 devtools/          # Development scripts (test, lint, review)
-docs/development/  # Development environment documentation
+docs/guides/       # User guides (ai-first and hands-on)
+docs/development/  # Technical documentation
 ```
 
 ---
