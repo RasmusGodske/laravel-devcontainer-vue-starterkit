@@ -13,7 +13,8 @@ This Laravel starter kit includes:
 - **PostgreSQL** and **Redis** for database and caching
 - **E2E Testing** with Playwright for browser automation
 - **Claude Code Rules** for AI-assisted development with consistent conventions
-- **Devtools** for environment setup and AI code review hooks
+- **Devtools** for environment setup and development commands
+- **Quality Tools** (tarnished, lumby, reldo) for smart change tracking and AI-powered diagnostics
 
 ## Why No Laravel Sail?
 
@@ -41,7 +42,8 @@ Follow these steps in order to recreate the starter kit:
 12. **[Frontend Code Quality Enhancement](12-frontend-code-quality-enhancement.md)** - Enhance ESLint and Prettier for better Vue.js development
 13. **[E2E Testing](13-e2e-testing.md)** - Set up Playwright for end-to-end testing
 14. **[Claude Code Rules](14-claude-code-rules.md)** - Configure coding conventions for AI-assisted development
-15. **[Devtools](15-devtools.md)** - Helper scripts and Claude Code hooks for AI code review
+15. **[Devtools](15-devtools.md)** - Helper scripts for environment setup and development
+16. **[Quality Tools](16-quality-tools.md)** - AI-powered quality tools (tarnished, lumby, reldo)
 
 ## Quick Start
 

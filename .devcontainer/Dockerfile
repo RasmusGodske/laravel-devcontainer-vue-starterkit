@@ -93,8 +93,32 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 USER vscode
 RUN curl -fsSL https://claude.ai/install.sh | bash
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install quality tools via uv
+RUN /home/vscode/.local/bin/uv tool install lumby
+RUN /home/vscode/.local/bin/uv tool install reldo
+RUN /home/vscode/.local/bin/uv tool install tarnished
 USER root
 RUN echo 'export PATH="$PATH:/home/vscode/.claude/local/bin"' >> /home/vscode/.zshrc
+RUN echo 'export PATH="$PATH:/home/vscode/.local/bin"' >> /home/vscode/.zshrc
+
+# Install tools for root user (GitHub Actions runs as root)
+RUN curl -fsSL https://claude.ai/install.sh | bash \
+    && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && /root/.local/bin/uv tool install lumby \
+    && /root/.local/bin/uv tool install reldo \
+    && /root/.local/bin/uv tool install tarnished \
+    && ln -s /root/.local/bin/lumby /usr/local/bin/lumby \
+    && ln -s /root/.local/bin/reldo /usr/local/bin/reldo \
+    && ln -s /root/.local/bin/tarnished /usr/local/bin/tarnished \
+    && ln -s /root/.local/bin/uvx /usr/local/bin/uvx
+
+# Create symlinks for devtools commands (short aliases)
+RUN ln -s /home/vscode/project/devtools/test/php.sh /usr/local/bin/test:php \
+    && ln -s /home/vscode/project/devtools/lint/php.sh /usr/local/bin/lint:php \
+    && ln -s /home/vscode/project/devtools/lint/js.sh /usr/local/bin/lint:js \
+    && ln -s /home/vscode/project/devtools/lint/ts.sh /usr/local/bin/lint:ts \
+    && ln -s /home/vscode/project/devtools/review/code.sh /usr/local/bin/review:code \
+    && ln -s /home/vscode/project/devtools/qa.sh /usr/local/bin/qa
 
 RUN chown -R vscode:vscode /home/vscode/project
 RUN chmod -R 700 /home/vscode/project

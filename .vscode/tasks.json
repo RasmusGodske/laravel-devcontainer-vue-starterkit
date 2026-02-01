@@ -24,7 +24,7 @@
     {
       "label": "Setup: Ensure .env",
       "type": "shell",
-      "command": "./devtools/ensure-env.sh",
+      "command": "./devtools/setup/env.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "file"
@@ -43,7 +43,7 @@
     {
       "label": "Setup: Ensure APP_KEY",
       "type": "shell",
-      "command": "./devtools/ensure-app-key.sh",
+      "command": "./devtools/setup/app-key.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "key",
@@ -62,7 +62,7 @@
     {
       "label": "Setup: Ensure Composer",
       "type": "shell",
-      "command": "./devtools/ensure-composer.sh",
+      "command": "./devtools/setup/composer.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "package"
@@ -82,7 +82,7 @@
     {
       "label": "Setup: Ensure npm",
       "type": "shell",
-      "command": "./devtools/ensure-npm.sh",
+      "command": "./devtools/setup/npm.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "package"
@@ -102,7 +102,7 @@
     {
       "label": "Setup: Ensure migrated",
       "type": "shell",
-      "command": "./devtools/ensure-migrated.sh",
+      "command": "./devtools/setup/migrated.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "database"
@@ -122,7 +122,7 @@
     {
       "label": "Setup: Configure URLs",
       "type": "shell",
-      "command": "./devtools/configure-urls.sh",
+      "command": "./devtools/setup/urls.sh",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "globe"

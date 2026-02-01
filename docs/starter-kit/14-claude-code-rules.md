@@ -23,7 +23,7 @@ Without these rules, Claude Code would generate code based on general best pract
 The rules are managed via a Composer package that syncs convention files from a central repository:
 
 ```bash
-composer require --dev rasmusgodske/laravel-vue-rules:dev-main
+composer require --dev rasmusgodske/godske-dev-rules
 ```
 
 ### Run the Sync Command
@@ -31,7 +31,7 @@ composer require --dev rasmusgodske/laravel-vue-rules:dev-main
 After installation, sync the rules to your project:
 
 ```bash
-php artisan techstack-rules:update --path=.claude/rules/techstack --force
+php artisan dev-rules:update
 ```
 
 This creates the following structure:
@@ -42,7 +42,8 @@ This creates the following structure:
     ├── dataclasses/       # Spatie Laravel Data patterns
     ├── e2e/               # Playwright testing conventions
     ├── frontend/          # Vue 3/TypeScript conventions
-    └── principles/        # General development principles
+    ├── principles/        # General development principles
+    └── python/            # Python development conventions
 ```
 
 ### Add Composer Script (Optional)
@@ -52,7 +53,7 @@ For convenience, add a script to `composer.json`:
 ```json
 {
     "scripts": {
-        "rules:update": "@php artisan techstack-rules:update --path=.claude/rules/techstack --force"
+        "rules:update": "@php artisan dev-rules:update"
     }
 }
 ```
@@ -89,7 +90,7 @@ composer rules:update
 When the upstream rules package is updated, sync the latest changes:
 
 ```bash
-composer update rasmusgodske/laravel-vue-rules
+composer update rasmusgodske/godske-dev-rules
 composer rules:update
 ```
 

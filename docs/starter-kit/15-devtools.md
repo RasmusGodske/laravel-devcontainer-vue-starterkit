@@ -1,70 +1,132 @@
 # Devtools
 
 ## Why This Step
-Development tools and scripts that improve the developer experience, particularly for AI-assisted development with Claude Code. These are ported from the main Prowi project and adapted for the starterkit.
+
+Development tools and scripts that improve the developer experience. These provide a consistent interface for common tasks and integrate with the quality tools (tarnished, lumby, reldo) for smart change tracking and AI diagnostics.
 
 ## What It Does
+
 - Provides helper scripts for environment setup and dependency management
-- Adds automatic code review for Claude Code subagents via hooks
-- Includes a standalone AI-powered code reviewer CLI
+- Organizes scripts by function (setup, test, lint, review)
+- Integrates with quality tools for smart development workflow
+- Creates symlinks for easy command access
 
 ## Directory Structure
 
 ```
 devtools/
-├── claude-hooks/
-│   └── SubAgentReviewer/     # Hook that reviews subagent code changes
-├── code-reviewer/            # Standalone AI code review CLI
-├── ensure-*.sh               # Environment setup scripts
-├── serve.sh                  # PHP server wrapper with restart handling
-├── configure-urls.sh         # URL configuration for Codespaces
-└── pyproject.toml            # Python dependencies (uses uv)
+├── setup/              # Environment initialization
+│   ├── env.sh         # Create .env from .env.example
+│   ├── composer.sh    # Install/update Composer dependencies
+│   ├── npm.sh         # Install/update npm dependencies
+│   ├── app-key.sh     # Generate APP_KEY if missing
+│   ├── migrated.sh    # Wait for DB, run migrations and seeds
+│   └── urls.sh        # Configure URLs for Codespaces vs local
+├── test/
+│   └── php.sh         # PHPUnit test runner
+├── lint/
+│   ├── php.sh         # PHPStan static analysis
+│   ├── js.sh          # ESLint for Vue/TypeScript
+│   └── ts.sh          # TypeScript type checking
+├── review/
+│   └── code.sh        # AI code review via reldo
+├── qa.sh              # Run all quality checks
+└── serve.sh           # PHP server wrapper with restart handling
 ```
 
 ## Key Components
 
-### Claude Code Hooks
+### Setup Scripts
 
-The `SubAgentReviewer` automatically reviews code changes made by Claude Code subagents (like `backend-engineer` or `frontend-engineer`) before they complete. If issues are found, the subagent is blocked and given feedback to fix.
-
-Configured in `.claude/settings.json`:
-```json
-{
-  "hooks": {
-    "SubagentStart": [...],
-    "SubagentStop": [...]
-  }
-}
-```
-
-### Code Reviewer CLI
-
-A standalone tool for AI-powered code reviews using Claude Agent SDK. Used by the SubAgentReviewer hook but can also be run manually:
-
-```bash
-cd devtools/code-reviewer
-uv run python cli.py --files "app/Models/User.php"
-```
-
-### Helper Scripts
+Used by the "Dev: Start" VS Code task to initialize the environment:
 
 | Script | Purpose |
 |--------|---------|
-| `ensure-env.sh` | Creates `.env` from `.env.example` if missing |
-| `ensure-composer.sh` | Installs/updates Composer dependencies |
-| `ensure-npm.sh` | Installs/updates npm dependencies |
-| `ensure-app-key.sh` | Generates `APP_KEY` if not set |
-| `ensure-migrated.sh` | Waits for DB, runs migrations and seeds |
-| `configure-urls.sh` | Configures URLs for Codespaces vs local |
-| `serve.sh` | PHP server wrapper with graceful restart |
+| `setup/env.sh` | Creates `.env` from `.env.example` if missing |
+| `setup/composer.sh` | Installs/updates Composer dependencies |
+| `setup/npm.sh` | Installs/updates npm dependencies |
+| `setup/app-key.sh` | Generates `APP_KEY` if not set |
+| `setup/migrated.sh` | Waits for DB, runs migrations and seeds |
+| `setup/urls.sh` | Configures URLs for Codespaces vs local |
 
-## Dependencies
+### Test & Lint Scripts
 
-Uses `uv` for Python package management. The devtools depend on:
-- `claude-agent-sdk` - For AI-powered reviews
+These integrate with the quality tools:
 
-Install with:
+| Script | Command Alias | Description |
+|--------|---------------|-------------|
+| `test/php.sh` | `test:php` | Run PHPUnit tests |
+| `lint/php.sh` | `lint:php` | Run PHPStan analysis |
+| `lint/js.sh` | `lint:js` | Run ESLint |
+| `lint/ts.sh` | `lint:ts` | Run TypeScript check |
+| `review/code.sh` | `review:code` | AI code review |
+| `qa.sh` | `qa` | Run all checks |
+
+### Quality Tool Integration
+
+Each test/lint script:
+1. Sets up the environment if needed
+2. Wraps the command with `lumby` for AI diagnosis on failure
+3. Saves a `tarnished` checkpoint on success
+
+Example from `test/php.sh`:
 ```bash
-cd devtools
-uv sync
+# Run with lumby wrapping
+run_cmd php artisan test "$@"
+exit_code=$?
+
+# Save checkpoint on success
+if [ $exit_code -eq 0 ]; then
+    tarnished save test:php 2>/dev/null || true
+fi
 ```
+
+## Usage
+
+### Using Command Aliases
+
+The Dockerfile creates symlinks for easy access:
+
+```bash
+test:php                       # Run all tests
+test:php --filter=UserTest     # Run specific test
+lint:php                       # Run PHPStan
+lint:js                        # Run ESLint
+review:code "Review changes"   # AI code review
+qa                             # Run all checks
+```
+
+### Using Scripts Directly
+
+```bash
+./devtools/test/php.sh --filter=UserTest
+./devtools/lint/php.sh
+./devtools/qa.sh --skip-phpstan
+```
+
+### Options
+
+Most scripts support:
+- `--no-lumby` - Skip AI diagnosis on failure
+- `--help` - Show usage information
+
+## VS Code Integration
+
+The "Dev: Start" task uses these scripts in sequence:
+
+1. `setup/env.sh` - Ensure .env exists
+2. `setup/composer.sh` - Install PHP dependencies
+3. `setup/app-key.sh` - Generate key if needed
+4. `setup/npm.sh` - Install npm dependencies
+5. Docker compose up - Start PostgreSQL and Redis
+6. `setup/migrated.sh` - Run migrations
+7. `setup/urls.sh` - Configure URLs
+8. `serve.sh` - Start Laravel server
+9. npm run dev - Start Vite
+
+## Adding New Commands
+
+1. Create script in appropriate directory (`test/`, `lint/`, etc.)
+2. Add symlink in Dockerfile
+3. Integrate with lumby and tarnished if appropriate
+4. Document in this file
