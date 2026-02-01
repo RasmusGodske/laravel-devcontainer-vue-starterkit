@@ -17,6 +17,11 @@ A modern Laravel starter kit with Vue 3, Inertia.js, and Tailwind CSS, optimized
   - Larastan for static analysis
   - ESLint and Prettier for JavaScript/TypeScript
   - Husky for Git hooks
+- **AI-Assisted Development**:
+  - tarnished for change tracking (know what checks need re-running)
+  - lumby for AI-powered error diagnosis
+  - reldo for AI-powered code review
+  - Claude Code integration with rules and plugins
 - **IDE Enhancements**:
   - Laravel IDE Helper for autocompletion
   - IntelliSense for Laravel routes and models
@@ -151,6 +156,30 @@ npm run lint
 npm run format
 ```
 
+### Quality Tools (Devtools)
+
+These commands integrate with tarnished (change tracking) and lumby (AI diagnosis):
+
+```bash
+# Run PHPUnit tests
+test:php
+test:php --filter=UserTest
+
+# Static analysis
+lint:php                    # PHPStan
+lint:js                     # ESLint
+lint:ts                     # TypeScript check
+
+# AI code review
+review:code "Review my changes"
+
+# Run all quality checks
+qa
+
+# Check what needs re-running
+tarnished status
+```
+
 ## Development Workflow
 
 ### With Git Hooks
@@ -212,7 +241,14 @@ const user = page.props.auth.user; // Fully typed!
 
 ## Documentation
 
-For detailed documentation on how this starter kit is configured, see the [docs/starter-kit](docs/starter-kit) directory.
+For detailed documentation on the development environment, see [docs/development/](docs/development/):
+
+| Guide | Description |
+|-------|-------------|
+| [Devcontainer Setup](docs/development/02-devcontainer-setup.md) | Docker environment configuration |
+| [Quality Tools](docs/development/15-quality-tools.md) | tarnished, lumby, reldo integration |
+| [Claude Code](docs/development/16-claude-code-configuration.md) | AI-assisted development setup |
+| [E2E Testing](docs/development/13-e2e-testing.md) | Playwright test configuration |
 
 ## Architecture
 
