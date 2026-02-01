@@ -1,17 +1,18 @@
 #!/bin/bash
 # Configures APP_URL and Vite HMR settings based on environment
-# - In local environment: defaults to localhost (no prompt)
-# - In Codespaces: prompts user to choose between browser access and port forwarding
+#
+# Usage:
+#   ./urls.sh              Run setup (direct, for backwards compatibility)
+#   ./urls.sh run          Run setup in tmux session (captures output)
+#   ./urls.sh run --attach Run setup in tmux and attach to watch
+#   ./urls.sh status       Check if URLs are configured
+#   ./urls.sh logs [N]     Show setup output from tmux session
 
-set -e
+SETUP_NAME="setup-urls"
+SCRIPT_PATH="$(readlink -f "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
-cd "$(dirname "$0")/.."
-
-# Ensure .env exists
-if [[ ! -f .env ]]; then
-    echo "Error: .env file not found. Run ensure-env.sh first."
-    exit 1
-fi
+cd /home/vscode/project
 
 # Helper function to update or add env var
 update_env() {
@@ -38,7 +39,7 @@ configure_localhost() {
     remove_env "VITE_HMR_HOST"
     remove_env "VITE_HMR_PROTOCOL"
     remove_env "VITE_HMR_CLIENT_PORT"
-    echo "✓ Configured for localhost access"
+    echo "[Setup] Configured for localhost access"
 }
 
 # Configure for Codespaces browser access
@@ -55,34 +56,76 @@ configure_codespaces_browser() {
     update_env "VITE_HMR_PROTOCOL" "wss"
     update_env "VITE_HMR_CLIENT_PORT" "443"
 
-    echo "✓ Configured for Codespaces browser access"
+    echo "[Setup] Configured for Codespaces browser access"
     echo "  APP_URL: ${codespace_url}"
     echo "  VITE_DEV_SERVER_URL: ${vite_dev_server_url}"
-    echo "  ASSET_URL: ${vite_dev_server_url}"
 }
 
-# If not in Codespaces, default to localhost (no prompt)
-if [[ "$CODESPACES" != "true" ]]; then
-    echo "Local environment detected"
-    configure_localhost
-    exit 0
-fi
+# The actual setup logic
+do_setup() {
+    # Ensure .env exists
+    if [[ ! -f .env ]]; then
+        echo "[Error] .env file not found. Run env.sh first."
+        return 1
+    fi
 
-# In Codespaces - prompt for mode
-echo ""
-echo "🌐 GitHub Codespaces detected!"
-echo ""
-echo "How are you accessing this environment?"
-echo "  1) Browser (app.github.dev URL)"
-echo "  2) VS Code Desktop with port forwarding (localhost)"
-echo ""
-read -p "Select [1/2]: " choice
-
-case $choice in
-    1)
-        configure_codespaces_browser
-        ;;
-    2|*)
+    # If not in Codespaces, default to localhost (no prompt)
+    if [[ "$CODESPACES" != "true" ]]; then
+        echo "[Check] Local environment detected"
         configure_localhost
+        return 0
+    fi
+
+    # In Codespaces - prompt for mode
+    echo ""
+    echo "GitHub Codespaces detected!"
+    echo ""
+    echo "How are you accessing this environment?"
+    echo "  1) Browser (app.github.dev URL)"
+    echo "  2) VS Code Desktop with port forwarding (localhost)"
+    echo ""
+    read -p "Select [1/2]: " choice
+
+    case $choice in
+        1)
+            configure_codespaces_browser
+            ;;
+        2|*)
+            configure_localhost
+            ;;
+    esac
+}
+
+# Status check (quick, no setup)
+do_status() {
+    if grep -q "^APP_URL=" .env 2>/dev/null; then
+        local app_url
+        app_url=$(grep "^APP_URL=" .env | cut -d= -f2)
+        echo "[ok] APP_URL is set ($app_url)"
+        return 0
+    else
+        echo "[missing] APP_URL not configured"
+        return 1
+    fi
+}
+
+# Source shared library for tmux functions
+source "$SCRIPT_DIR/_lib.sh"
+
+# Command dispatcher
+case "${1:-}" in
+    run)
+        shift
+        run_setup_in_tmux "$@"
+        ;;
+    status)
+        do_status
+        ;;
+    logs)
+        show_setup_logs "${2:-50}"
+        ;;
+    *)
+        # Backwards compatible - run directly
+        do_setup
         ;;
 esac

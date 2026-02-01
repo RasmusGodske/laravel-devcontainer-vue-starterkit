@@ -60,9 +60,9 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
     && apt-get update \
     && apt-get install -y gh
 
-# Install PostgreSQL client and Python
+# Install PostgreSQL client, Python, and tmux
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get install -y postgresql-client python3-pip
+    && apt-get install -y postgresql-client python3-pip tmux
 
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -131,8 +131,23 @@ RUN ln -s /home/vscode/project/devtools/test/php.sh /usr/local/bin/test:php \
     && ln -s /home/vscode/project/devtools/review/code.sh /usr/local/bin/review:code \
     && ln -s /home/vscode/project/devtools/qa.sh /usr/local/bin/qa
 
+# Create symlinks for service commands
+RUN ln -s /home/vscode/project/devtools/services/database.sh /usr/local/bin/service:database \
+    && ln -s /home/vscode/project/devtools/services/cache.sh /usr/local/bin/service:cache \
+    && ln -s /home/vscode/project/devtools/services/serve.sh /usr/local/bin/service:serve \
+    && ln -s /home/vscode/project/devtools/services/vite.sh /usr/local/bin/service:vite \
+    && ln -s /home/vscode/project/devtools/services/logs.sh /usr/local/bin/service:logs
+
+# Create symlinks for dev orchestration commands
+RUN ln -s /home/vscode/project/devtools/dev/start.sh /usr/local/bin/dev:start \
+    && ln -s /home/vscode/project/devtools/dev/stop.sh /usr/local/bin/dev:stop \
+    && ln -s /home/vscode/project/devtools/dev/status.sh /usr/local/bin/dev:status
+
 RUN chown -R vscode:vscode /home/vscode/project
 RUN chmod -R 700 /home/vscode/project
+
+# Symlink tmux config
+RUN ln -sf /home/vscode/project/.tmux.conf /home/vscode/.tmux.conf
 
 # Fix ownership of vscode home directory files
 RUN chown -R vscode:vscode /home/vscode

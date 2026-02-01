@@ -33,6 +33,87 @@ composer dev
 
 ---
 
+## Dev Environment
+
+### Orchestration Commands
+
+| Command | Purpose |
+|---------|---------|
+| `dev:start` | Start everything (setup + services) - for CI/headless |
+| `dev:start --quick` | Start services only (skip setup) |
+| `dev:stop` | Stop app services (keeps Docker running) |
+| `dev:stop --all` | Stop all services including Docker |
+| `dev:status` | Show status of all services |
+
+**Note:** For interactive development, use the VS Code "Dev: Start" task which shows each step in its own terminal. The `dev:start` script is designed for CI/headless environments.
+
+### Service Commands
+
+Long-running services run in tmux sessions, allowing both VS Code and Claude to access them.
+
+| Service | Command | What it runs |
+|---------|---------|--------------|
+| Docker | `service:docker` | PostgreSQL + Redis containers |
+| Serve | `service:serve` | Laravel dev server (port 8080) |
+| Vite | `service:vite` | Vite HMR dev server (port 5173) |
+| Logs | `service:logs` | Laravel Pail log tailing |
+
+Each service supports these subcommands:
+
+```bash
+service:serve start             # Start the service
+service:serve start --attach    # Start and attach to see output
+service:serve stop              # Stop the service
+service:serve restart           # Restart the service
+service:serve restart --attach  # Restart and attach
+service:serve status            # Check if running (exit code 0 = running)
+service:serve logs 50           # Show last 50 lines of output
+service:serve logs --watch      # Follow logs continuously
+service:serve logs 100 --watch  # Follow last 100 lines
+service:serve attach            # Attach to tmux session (interactive)
+```
+
+### Checking Service Health
+
+```bash
+# Human-readable status
+dev:status
+
+# JSON output (for scripts/automation)
+dev:status --json
+# {"docker": "running", "serve": "running", "vite": "stopped", "logs": "stopped"}
+```
+
+### Troubleshooting
+
+**User reports an error → Check the logs:**
+```bash
+service:serve logs 100    # See recent Laravel server output
+service:logs start        # Start log tailing to watch for errors
+```
+
+**Service not responding → Restart it:**
+```bash
+service:serve restart
+service:vite restart
+```
+
+**Check if services are healthy before running tests:**
+```bash
+dev:status --json | grep -q '"serve": "running"' && echo "Server is up"
+```
+
+### How It Works
+
+Services run in named tmux sessions (`dev-docker`, `dev-serve`, `dev-vite`, `dev-logs`). This means:
+
+- **Persistence**: Services survive terminal closure
+- **Shared access**: VS Code terminals and Claude can both see/control them
+- **No duplicates**: Starting an already-running service just reports status
+- **Logs available**: Output is captured in tmux scrollback buffer
+
+---
+
 ## Quality Check Workflow
 
 After making changes, always check what needs re-running:

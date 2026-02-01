@@ -8,11 +8,13 @@
         "Setup: Ensure Composer",
         "Setup: Ensure APP_KEY",
         "Setup: Ensure npm",
-        "Docker: compose up",
+        "service:database",
+        "service:cache",
         "Setup: Ensure migrated",
         "Setup: Configure URLs",
-        "Artisan: serve",
-        "Npm: run dev"
+        "service:serve",
+        "service:vite",
+        "service:logs",
       ],
       "dependsOrder": "sequence",
       "icon": {
@@ -22,9 +24,40 @@
       "problemMatcher": []
     },
     {
+      "label": "Dev: Stop",
+      "type": "shell",
+      "command": "./devtools/services/vite.sh stop && ./devtools/services/serve.sh stop && ./devtools/services/cache.sh stop && ./devtools/services/database.sh stop",
+      "icon": {
+        "color": "terminal.ansiRed",
+        "id": "debug-stop"
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "shared",
+        "reveal": "silent",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Status",
+      "type": "shell",
+      "command": "./devtools/dev/status.sh",
+      "icon": {
+        "color": "terminal.ansiBlue",
+        "id": "info"
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Setup: Ensure .env",
       "type": "shell",
-      "command": "./devtools/setup/env.sh",
+      "command": "./devtools/setup/env.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "file"
@@ -33,7 +66,8 @@
         "focus": false,
         "panel": "shared",
         "reveal": "silent",
-        "showReuseMessage": false
+        "showReuseMessage": false,
+        "close": true
       },
       "options": {
         "cwd": ""
@@ -43,16 +77,17 @@
     {
       "label": "Setup: Ensure APP_KEY",
       "type": "shell",
-      "command": "./devtools/setup/app-key.sh",
+      "command": "./devtools/setup/app-key.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
-        "id": "key",
+        "id": "key"
       },
       "presentation": {
         "focus": false,
         "panel": "shared",
         "reveal": "silent",
-        "showReuseMessage": false
+        "showReuseMessage": false,
+        "close": true
       },
       "options": {
         "cwd": ""
@@ -62,7 +97,7 @@
     {
       "label": "Setup: Ensure Composer",
       "type": "shell",
-      "command": "./devtools/setup/composer.sh",
+      "command": "./devtools/setup/composer.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "package"
@@ -82,7 +117,7 @@
     {
       "label": "Setup: Ensure npm",
       "type": "shell",
-      "command": "./devtools/setup/npm.sh",
+      "command": "./devtools/setup/npm.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "package"
@@ -102,7 +137,7 @@
     {
       "label": "Setup: Ensure migrated",
       "type": "shell",
-      "command": "./devtools/setup/migrated.sh",
+      "command": "./devtools/setup/migrated.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "database"
@@ -122,7 +157,7 @@
     {
       "label": "Setup: Configure URLs",
       "type": "shell",
-      "command": "./devtools/setup/urls.sh",
+      "command": "./devtools/setup/urls.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "globe"
@@ -140,12 +175,12 @@
       "problemMatcher": []
     },
     {
-      "label": "Docker: compose up",
+      "label": "service:database",
       "type": "shell",
-      "command": "docker compose up",
+      "command": "./devtools/services/database.sh start --attach",
       "icon": {
         "color": "terminal.ansiBlue",
-        "id": "package"
+        "id": "database"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -154,8 +189,8 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^\\[\\+\\] Running",
-          "endsPattern": "(Attaching to|Container.*Started)"
+          "beginsPattern": "^\\[dev-database\\]",
+          "endsPattern": "(Ready|ready to accept)"
         }
       },
       "presentation": {
@@ -168,19 +203,37 @@
       }
     },
     {
-      "label": "Docker: compose down",
+      "label": "service:cache",
       "type": "shell",
+      "command": "./devtools/services/cache.sh start --attach",
       "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "window"
+        "color": "terminal.ansiRed",
+        "id": "server-process"
       },
-      "command": "docker compose down",
-      "problemMatcher": []
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[dev-cache\\]",
+          "endsPattern": "(Ready|ready to accept)"
+        }
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
     },
     {
-      "label": "Artisan: serve",
+      "label": "service:serve",
       "type": "shell",
-      "command": "./devtools/serve.sh 8080 0.0.0.0",
+      "command": "./devtools/services/serve.sh start --attach",
       "icon": {
         "color": "terminal.ansiMagenta",
         "id": "server"
@@ -192,8 +245,8 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": ".*Starting Laravel development server.*",
-          "endsPattern": ".*Server running on.*"
+          "beginsPattern": "^\\[dev-serve\\]",
+          "endsPattern": "Server running on"
         }
       },
       "presentation": {
@@ -434,9 +487,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Npm: run dev",
+      "label": "service:vite",
       "type": "shell",
-      "command": "npm run dev",
+      "command": "./devtools/services/vite.sh start --attach",
       "icon": {
         "color": "terminal.ansiCyan",
         "id": "rocket"
@@ -448,8 +501,36 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "VITE *..*ready in.*",
-          "endsPattern": ".*APP_URL.*"
+          "beginsPattern": "^\\[dev-vite\\]",
+          "endsPattern": "VITE"
+        }
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
+    },
+    {
+      "label": "service:logs",
+      "type": "shell",
+      "command": "./devtools/services/logs.sh start --attach",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "output"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[dev-logs\\]",
+          "endsPattern": "Tailing"
         }
       },
       "presentation": {
