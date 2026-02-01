@@ -1,307 +1,119 @@
-# Laravel Devcontainer Vue Starterkit
+# Laravel Vue Starterkit
 
-A modern Laravel starter kit with Vue 3, Inertia.js, and Tailwind CSS, optimized for VS Code Dev Containers. This starter kit runs PHP directly in the devcontainer for optimal performance and IDE integration, without the overhead of Laravel Sail.
+A modern Laravel + Vue.js starter template with AI-assisted development built in.
 
-## Features
+---
 
-- **Vue 3**: Modern JavaScript framework for building user interfaces
-- **Inertia.js**: Build single-page apps using classic server-side routing
-- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
-- **TypeScript**: Static type checking for enhanced code quality
-- **VS Code Dev Containers**: Fully configured development environment with PHP 8.x
-- **PostgreSQL 17**: Production-ready database
-- **Redis**: High-performance caching and session storage
-- **Code Quality Tools**:
-  - Laravel Pint for PHP formatting
-  - Rector for automated code refactoring and import management
-  - Larastan for static analysis
-  - ESLint and Prettier for JavaScript/TypeScript
-  - Husky for Git hooks
-- **AI-Assisted Development**:
-  - tarnished for change tracking (know what checks need re-running)
-  - lumby for AI-powered error diagnosis
-  - reldo for AI-powered code review
-  - Claude Code integration with rules and plugins
-- **IDE Enhancements**:
-  - Laravel IDE Helper for autocompletion
-  - IntelliSense for Laravel routes and models
-- **Debugging Tools**: Laravel Debugbar for development insights
-- **Type-Safe Inertia Data**: Spatie Laravel Data with TypeScript transformer
-- **Development Workflow**: Optimized composer scripts for common tasks
+## 🚀 Use This Template
 
-## Why No Laravel Sail?
+> **Delete this section after creating your project**
 
-This starter kit runs PHP directly in the devcontainer instead of using Laravel Sail, which provides several benefits:
+This starterkit gives you:
 
-- **Faster execution**: No container-to-container communication overhead
-- **Better IDE integration**: PHP runs where your IDE extensions run
-- **Simpler commands**: Use `php artisan` directly instead of `sail artisan`
-- **Easier debugging**: Xdebug is in the same environment as your IDE
-- **Lower resource usage**: One fewer container layer
+- **Complete dev environment** - Docker-based, works on any machine
+- **AI-assisted development** - Claude Code integration with guardrails
+- **Production-ready stack** - Laravel 12, Vue 3, TypeScript, Tailwind CSS
+- **Quality tools built in** - Testing, linting, code review
 
-## Prerequisites
+### Why This Setup is Powerful
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code
+Claude Code isn't just a chatbot - it can actually **do things** in your project:
+
+- **Read and write files** directly (no copy-paste needed)
+- **Run commands** - tests, linting, database migrations
+- **Check logs** - see errors from your app, database, and frontend
+- **Restart services** - fix issues without leaving the conversation
+- **Follow your rules** - learns your coding conventions from `.claude/rules/`
+- **Research documentation** - look up Laravel docs, Vue guides, or any topic
+
+**Safe by design:** Claude runs inside a devcontainer (sandbox), so it can't affect anything outside your project.
+
+**[Create Your Project →](https://github.com/new?template_name=laravel-devcontainer-vue-starterkit&template_owner=RasmusGodske)**
+
+After creating your repository, follow the [Setup Guide](docs/guides/02-setup-environment.md) to get started.
+
+---
 
 ## Getting Started
 
-### Method 1: Clone this repository
+### Prerequisites
 
-```bash
-git clone https://github.com/RasmusGodske/laravel-devcontainer-vue-starterkit.git my-app
-cd my-app
-code .
-```
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- [Git](https://git-scm.com/downloads)
 
-When VS Code opens, click "Reopen in Container" when prompted, or use the command palette (F1) and select "Dev Containers: Reopen in Container".
+### Quick Start
 
-The devcontainer will automatically:
-1. Build the PHP development environment
-2. Install composer dependencies
-3. Install npm dependencies
-4. Copy `.env.example` to `.env` and generate app key
-5. Start PostgreSQL and Redis containers
+1. Clone your repository
+2. Open in VS Code
+3. Click "Reopen in Container" when prompted
+4. Run the "Dev: Start" task (`Ctrl+Shift+P` → "Tasks: Run Task" → "Dev: Start")
+5. Open http://localhost:8080
 
-### Method 2: Use as a template
+**Default login:** test@example.com / password123
 
-1. Click "Use this template" on GitHub
-2. Clone your new repository
-3. Open in VS Code
-4. Reopen in container
+📖 **[Full Setup Guide →](docs/guides/02-setup-environment.md)**
 
-## First Steps After Setup
+---
 
-Once the devcontainer is ready:
+## Choose Your Path
 
-1. **Run database migrations**:
-   ```bash
-   php artisan migrate
-   ```
+### 🤖 AI-First Development
 
-2. **Start the development servers**:
-   ```bash
-   composer dev
-   ```
+Build by describing what you want. Claude handles the code.
 
-   This starts:
-   - Laravel dev server on http://localhost:8080
-   - Vite dev server with HMR
-   - Queue worker
-   - Log viewer (pail)
+Perfect for: Creators, rapid prototyping, or anyone who prefers conversation over commands.
 
-3. **Visit your app**: Open http://localhost:8080 in your browser
+**[Get Started →](docs/guides/ai-first/)**
 
-## Available Commands
+### 🛠️ Hands-On Development
 
-### Composer Scripts
+Run commands yourself and understand the tools.
 
-```bash
-# Start all dev servers (artisan serve, vite, queue, logs)
-composer dev
+Perfect for: Developers who want full control.
 
-# Start with SSR support
-composer dev:ssr
+**[Get Started →](docs/guides/hands-on/)**
 
-# Run tests
-composer test
+---
 
-# Format PHP code
-composer format:php
+## What's Included
 
-# Format only changed files
-composer format:php-dirty
+| Category | Features |
+|----------|----------|
+| **Stack** | Laravel 12, Vue 3, Inertia.js, TypeScript, Tailwind CSS |
+| **Database** | PostgreSQL 17, Redis |
+| **Quality** | PHPStan, ESLint, Prettier, PHPUnit |
+| **AI Tools** | Claude Code, tarnished (change tracking), lumby (error diagnosis), reldo (code review) |
+| **DX** | Hot reload, IDE helpers, type generation |
 
-# Run Rector (dry-run to preview changes)
-composer rector
-
-# Run Rector and apply changes
-composer rector:fix
-
-# Complete dev setup (types, IDE helper, formatting)
-composer dev-setup
-```
-
-### Artisan Commands (or use `art` alias)
-
-```bash
-# Run migrations
-php artisan migrate
-
-# Generate TypeScript types from PHP
-php artisan typescript:transform
-
-# Generate IDE helper files
-php artisan ide-helper:generate
-
-# Run tests
-php artisan test
-```
-
-### Frontend Commands
-
-```bash
-# Start Vite dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Build SSR bundle
-npm run build:ssr
-
-# Lint and format
-npm run lint
-npm run format
-```
-
-### Quality Tools (Devtools)
-
-These commands integrate with tarnished (change tracking) and lumby (AI diagnosis):
-
-```bash
-# Run PHPUnit tests
-test:php
-test:php --filter=UserTest
-
-# Static analysis
-lint:php                    # PHPStan
-lint:js                     # ESLint
-lint:ts                     # TypeScript check
-
-# AI code review
-review:code "Review my changes"
-
-# Run all quality checks
-qa
-
-# Check what needs re-running
-tarnished status
-```
-
-## Development Workflow
-
-### With Git Hooks
-
-This starter kit includes Husky pre-commit hooks that automatically:
-- Format PHP code with Pint
-- Lint and format frontend code
-- Stage any auto-fixes
-
-### Database
-
-The starter kit uses PostgreSQL by default. Connection details:
-- Host: `pgsql`
-- Port: `5432`
-- Database: `laravel`
-- Username: `laravel`
-- Password: `password`
-
-You can connect with any PostgreSQL client using these credentials.
-
-### Caching and Sessions
-
-Redis is configured for:
-- Cache (`CACHE_STORE=redis`)
-- Sessions (`SESSION_DRIVER=redis`)
-- Queue (`QUEUE_CONNECTION=redis`)
-
-### Type-Safe Inertia Shared Data
-
-This starter kit includes type-safe shared data for Inertia using Spatie Laravel Data:
-
-```php
-// PHP - app/Data/Inertia/InertiaSharedData.php
-class InertiaSharedData extends Data
-{
-    public function __construct(
-        public InertiaAuthData $auth,
-        public InertiaZiggyData $ziggy,
-        public ?InertiaQuoteData $quote = null,
-    ) {}
-}
-```
-
-Generate TypeScript types:
-```bash
-php artisan typescript:transform
-```
-
-Use in Vue components with full type safety:
-```vue
-<script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import type { InertiaSharedData } from '@/types/generated';
-
-const page = usePage<{ data: InertiaSharedData }>();
-const user = page.props.auth.user; // Fully typed!
-</script>
-```
+---
 
 ## Documentation
 
-For detailed documentation on the development environment, see [docs/development/](docs/development/):
-
 | Guide | Description |
 |-------|-------------|
-| [Devcontainer Setup](docs/development/02-devcontainer-setup.md) | Docker environment configuration |
-| [Quality Tools](docs/development/15-quality-tools.md) | tarnished, lumby, reldo integration |
-| [Claude Code](docs/development/16-claude-code-configuration.md) | AI-assisted development setup |
-| [E2E Testing](docs/development/13-e2e-testing.md) | Playwright test configuration |
+| [Create Your Project](docs/guides/01-create-your-project.md) | Create a repo from this template |
+| [Setup Environment](docs/guides/02-setup-environment.md) | Install and configure everything |
+| [AI-First Guides](docs/guides/ai-first/) | Build with Claude assistance |
+| [Hands-On Guides](docs/guides/hands-on/) | Manual development reference |
+| [Technical Docs](docs/development/) | Deep dives into specific features |
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│  Host Machine                               │
-│  ┌───────────────────────────────────────┐  │
-│  │  Devcontainer                         │  │
-│  │  - PHP 8.x                           │  │
-│  │  - Node.js 20                        │  │
-│  │  - Composer                          │  │
-│  │  - VS Code Server                    │  │
-│  │  - php artisan serve (port 8080)     │  │
-│  └───────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────┐  │
-│  │  PostgreSQL 17 Container              │  │
-│  └───────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────┐  │
-│  │  Redis Container                      │  │
-│  └───────────────────────────────────────┘  │
-└─────────────────────────────────────────────┘
-```
-
-## Customization
-
-### Change PHP Version
-
-Edit `.devcontainer/Dockerfile` and update the base image or PHP version.
-
-### Add PHP Extensions
-
-Edit `.devcontainer/Dockerfile` and add to the `apt-get install` list.
-
-### Add Services
-
-Edit `docker-compose.yml` to add services like MySQL, Mailhog, etc.
+---
 
 ## Troubleshooting
 
-### Port 8080 already in use
+**Container won't start**
+- Make sure Docker Desktop is running
+- Try restarting Docker Desktop
 
-Change the port in:
-1. `.env`: `APP_URL=http://localhost:YOUR_PORT`
-2. `.devcontainer/devcontainer.json`: Update `forwardPorts`
-3. Composer scripts: Update `--port=YOUR_PORT` in dev commands
+**Port 8080 in use**
+- Stop whatever is using port 8080, or change the port in `.env`
 
-### Permission Issues
+**Something else broken?**
+- Open Claude and describe the problem - it can help diagnose and fix issues
 
-The devcontainer runs as the `vscode` user. If you encounter permission issues:
-
-```bash
-sudo chown -R vscode:vscode /home/vscode/project
-```
+---
 
 ## Contributing
 

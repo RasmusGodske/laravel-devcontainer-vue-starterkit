@@ -37,3 +37,6 @@ __pycache__/
 .tarnished/state.json
 # reldo logs are auto-generated (settings.json and orchestrator.md are committed)
 .reldo/sessions/
+
+# User profile (personal, not committed)
+.claude-user-profile.md

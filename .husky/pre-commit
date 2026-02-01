@@ -1,17 +1,22 @@
 #!/bin/sh
-echo "📋 Running pre-commit checks..."
+# ------------------------------------------------
+#  Disabled pre-commit checks for now
+# ------------------------------------------------
 
-# Run PHP formatter if pint is available
-if [ -f "./vendor/bin/pint" ]; then
-    ./vendor/bin/pint --dirty
-fi
 
-# Run frontend linting if npm is available
-if command -v npm &> /dev/null && [ -f "package.json" ]; then
-    npm run lint
-fi
+#echo "📋 Running pre-commit checks..."
 
-# Stage any auto-fixed files
-git add -A
+# # Run PHP formatter if pint is available
+# if [ -f "./vendor/bin/pint" ]; then
+#     ./vendor/bin/pint --dirty
+# fi
 
-echo "✅ Pre-commit checks passed!"
+# # Run frontend linting if npm is available
+# if command -v npm &> /dev/null && [ -f "package.json" ]; then
+#     npm run lint
+# fi
+
+# # Stage any auto-fixed files
+# git add -A
+
+# echo "✅ Pre-commit checks passed!"

@@ -53,7 +53,8 @@ Long-running services run in tmux sessions, allowing both VS Code and Claude to 
 
 | Service | Command | What it runs |
 |---------|---------|--------------|
-| Docker | `service:docker` | PostgreSQL + Redis containers |
+| Database | `service:database` | PostgreSQL via Docker |
+| Cache | `service:cache` | Redis via Docker |
 | Serve | `service:serve` | Laravel dev server (port 8080) |
 | Vite | `service:vite` | Vite HMR dev server (port 5173) |
 | Logs | `service:logs` | Laravel Pail log tailing |
@@ -81,7 +82,7 @@ dev:status
 
 # JSON output (for scripts/automation)
 dev:status --json
-# {"docker": "running", "serve": "running", "vite": "stopped", "logs": "stopped"}
+# {"database": "running", "cache": "running", "serve": "running", "vite": "stopped", "logs": "stopped"}
 ```
 
 ### Troubleshooting
@@ -105,7 +106,7 @@ dev:status --json | grep -q '"serve": "running"' && echo "Server is up"
 
 ### How It Works
 
-Services run in named tmux sessions (`dev-docker`, `dev-serve`, `dev-vite`, `dev-logs`). This means:
+Services run in named tmux sessions (`dev-database`, `dev-cache`, `dev-serve`, `dev-vite`, `dev-logs`). This means:
 
 - **Persistence**: Services survive terminal closure
 - **Shared access**: VS Code terminals and Claude can both see/control them

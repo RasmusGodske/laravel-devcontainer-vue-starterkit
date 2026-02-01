@@ -72,6 +72,24 @@ do_setup() {
     else
         echo "[Database] Database already has data ($USER_COUNT users). Skipping seed."
     fi
+
+    # Set up testing database for parallel tests
+    echo "[Database] Setting up testing database..."
+    TESTING_DB="testing"
+
+    # Check if testing database exists
+    if docker compose exec -T pgsql psql -U "${DB_USERNAME:-laravel}" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$TESTING_DB'" 2>/dev/null | grep -q 1; then
+        echo "[Database] Testing database already exists"
+    else
+        echo "[Database] Creating testing database..."
+        docker compose exec -T pgsql psql -U "${DB_USERNAME:-laravel}" -d postgres -c "CREATE DATABASE $TESTING_DB OWNER ${DB_USERNAME:-laravel};"
+        echo "[Database] Testing database created"
+    fi
+
+    # Run migrations on testing database
+    echo "[Database] Migrating testing database..."
+    DB_DATABASE=$TESTING_DB php artisan migrate --force
+    echo "[Database] Testing database ready"
 }
 
 # Status check (quick, no setup)
