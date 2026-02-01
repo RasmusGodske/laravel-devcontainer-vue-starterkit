@@ -101,16 +101,27 @@ USER root
 RUN echo 'export PATH="$PATH:/home/vscode/.claude/local/bin"' >> /home/vscode/.zshrc
 RUN echo 'export PATH="$PATH:/home/vscode/.local/bin"' >> /home/vscode/.zshrc
 
-# Install tools for root user (GitHub Actions runs as root)
-RUN curl -fsSL https://claude.ai/install.sh | bash \
+# Install Bun and Claude Code for root user (GitHub Actions runs as root)
+RUN echo "Installing Bun for root..." \
+    && curl -fsSL https://bun.sh/install | bash \
+    && echo 'export BUN_INSTALL="$HOME/.bun"' >> /root/.bashrc \
+    && echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> /root/.bashrc
+RUN echo "Installing Claude Code for root..." \
+    && curl -fsSL https://claude.ai/install.sh | bash \
+    && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.bashrc
+RUN echo "Installing uv for root..." \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.bashrc
+RUN echo "Installing lumby for root..." \
     && /root/.local/bin/uv tool install lumby \
-    && /root/.local/bin/uv tool install reldo \
-    && /root/.local/bin/uv tool install tarnished \
     && ln -s /root/.local/bin/lumby /usr/local/bin/lumby \
-    && ln -s /root/.local/bin/reldo /usr/local/bin/reldo \
-    && ln -s /root/.local/bin/tarnished /usr/local/bin/tarnished \
     && ln -s /root/.local/bin/uvx /usr/local/bin/uvx
+RUN echo "Installing reldo for root..." \
+    && /root/.local/bin/uv tool install reldo \
+    && ln -s /root/.local/bin/reldo /usr/local/bin/reldo
+RUN echo "Installing tarnished for root..." \
+    && /root/.local/bin/uv tool install tarnished \
+    && ln -s /root/.local/bin/tarnished /usr/local/bin/tarnished
 
 # Create symlinks for devtools commands (short aliases)
 RUN ln -s /home/vscode/project/devtools/test/php.sh /usr/local/bin/test:php \
