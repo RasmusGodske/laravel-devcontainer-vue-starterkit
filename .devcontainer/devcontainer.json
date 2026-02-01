@@ -42,7 +42,8 @@
         "Vue.volar",
         "xdebug.php-debug",
         "amiralizadeh9480.laravel-extra-intellisense",
-        "bmewburn.vscode-intelephense-client"
+        "bmewburn.vscode-intelephense-client",
+        "Anthropic.claude-code"
       ],
       "settings": {
         "task.autoDetect": "off",
