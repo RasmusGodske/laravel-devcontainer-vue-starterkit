@@ -1,79 +1,73 @@
 # Debug Configuration
 
-## Why This Step
-Setting up Xdebug enables step-by-step debugging of PHP code directly in VSCode. Since PHP runs directly in the devcontainer (not in a separate Sail container), debugging is simpler and more straightforward with no additional container layers.
+## Overview
 
-## What It Does
-- Configures Xdebug within the devcontainer
-- Sets up VSCode to connect to the Xdebug server
-- Establishes proper path mappings for debugging
-- Enables debugging, tracing, and code coverage capabilities
+Step-through debugging lets you pause PHP execution, inspect variables, and trace code flow directly in VSCode. Since PHP runs in the devcontainer (not a separate Sail container), debugging is simpler with no extra container layers or complex path mappings.
 
-## Implementation
+Xdebug is pre-configured and ready to use - just set breakpoints and start debugging.
 
-### Xdebug is Already Installed
-The devcontainer Dockerfile includes Xdebug installation via the `php-xdebug` package, so no additional installation is needed.
+## Usage
 
-### Create VSCode Launch Configuration
-The `.vscode/launch.json` file should already exist with the following content:
+### Starting a Debug Session
 
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-      {
-          "name": "Listen for Xdebug",
-          "type": "php",
-          "request": "launch",
-          "log": false,
-          "port": 9003,
-          "pathMappings": {
-              "/home/vscode/project": "${workspaceFolder}"
-          }
-      }
-  ]
-}
+1. **Set a breakpoint** - Click in the gutter next to a line number in any PHP file
+2. **Start the debugger** - Use one of these methods:
+   - Press `F5`
+   - Open Run and Debug panel (`Ctrl+Shift+D`) and click the play button
+   - Select "Listen for Xdebug" from the debug dropdown
+3. **Trigger your code** - Visit your app in the browser or run an artisan command
+4. **Debug** - VSCode pauses at your breakpoints, letting you inspect variables and step through code
+
+### Debugging Artisan Commands
+
+```bash
+php artisan your:command
 ```
 
-The path mapping tells Xdebug that files at `/home/vscode/project` inside the devcontainer correspond to files in your VSCode workspace folder.
+With the debugger listening, breakpoints in your command will be hit automatically.
 
-### Usage
+### Debugging Web Requests
 
-1. **Set a breakpoint** in your PHP code by clicking in the gutter next to a line number
-2. **Start the debugger** in VSCode:
-   - Press `F5`, or
-   - Go to Run and Debug panel (Ctrl+Shift+D), or
-   - Click "Listen for Xdebug" in the debug dropdown
-3. **Trigger the code** by visiting your application in the browser or running artisan commands
-4. **Debug!** VSCode will pause execution at your breakpoints
+Simply visit any page in your browser while the debugger is listening. Breakpoints in controllers, middleware, and services will pause execution.
 
-### Advantages Over Sail Setup
+## Configuration
 
-Running PHP directly in the devcontainer provides several debugging benefits:
+### Key Files
 
-- **Simpler configuration**: No need for `SAIL_XDEBUG_*` environment variables
-- **Direct connection**: Xdebug runs in the same container as VSCode Server
-- **Easier path mapping**: Single path mapping instead of nested container paths
-- **Better performance**: No container-to-container communication overhead
-- **Consistent environment**: Debugging environment matches your development environment exactly
+| File | Purpose |
+|------|---------|
+| `.vscode/launch.json` | VSCode debugger configuration |
+| `.devcontainer/Dockerfile` | Xdebug PHP settings (lines 17-21) |
+
+### Xdebug Settings
+
+The devcontainer configures Xdebug with these defaults:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `xdebug.mode` | `debug` | Enables step debugging |
+| `xdebug.start_with_request` | `yes` | Auto-starts debugging for every request |
+| `xdebug.client_host` | `127.0.0.1` | Connects to local VSCode |
+| `xdebug.client_port` | `9003` | Default Xdebug port |
+
+### Customization
+
+To modify Xdebug behavior, edit the Dockerfile and rebuild the container:
+
+```bash
+# After editing .devcontainer/Dockerfile
+# Command Palette (F1) → "Dev Containers: Rebuild Container"
+```
+
+Common customizations:
+- Change `xdebug.mode=debug,coverage` to enable code coverage
+- Set `xdebug.start_with_request=trigger` to only debug when explicitly triggered
 
 ### Troubleshooting
 
-If debugging doesn't work:
+If breakpoints are not being hit:
 
-1. **Verify Xdebug is installed**:
-   ```bash
-   php -v
-   # Should show "with Xdebug"
-   ```
-
-2. **Check Xdebug configuration**:
-   ```bash
-   php -i | grep xdebug
-   ```
-
-3. **Restart the devcontainer**:
-   Command Palette (F1) → "Dev Containers: Rebuild Container"
-
-4. **Check port 9003 is not in use**:
-   Make sure no other debugger is using port 9003
+1. **Verify Xdebug is installed**: `php -v` should show "with Xdebug"
+2. **Check the debugger is listening**: Look for the orange debug toolbar in VSCode
+3. **Rebuild the container**: Command Palette → "Dev Containers: Rebuild Container"
+4. **Ensure port 9003 is free**: No other process should be using this port

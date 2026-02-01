@@ -1,39 +1,11 @@
 # Development Workflow Scripts
 
-## Why This Step
-Composer scripts streamline common development tasks by bundling multiple commands into single, memorable shortcuts. This ensures consistency across the team and reduces the cognitive load of remembering complex command sequences.
+## Overview
 
-## What It Does
-- Creates a unified `dev-setup` script that generates all necessary files for development
-- Combines TypeScript generation, IDE helper creation, and code formatting
-- Provides a single command to prepare the development environment
-- Ensures all generated files are properly formatted according to project standards
+Composer scripts streamline common development tasks by bundling multiple commands into single, memorable shortcuts. Instead of remembering complex command sequences for generating TypeScript types, IDE helpers, and route definitions, you run one command. This ensures consistency across the team and reduces the cognitive load of context-switching between different tools.
 
-## Implementation
+## Usage
 
-### Add Composer Scripts
-Add the following scripts to your `composer.json` file under the `scripts` section:
-
-```json
-{
-  ...
-  "scripts": {
-    ...
-    "dev-setup": [
-      "@php artisan typescript:transform --format",
-      "@php artisan ide-helper:generate",
-      "@php artisan ide-helper:models -W",
-      "@php artisan ide-helper:meta",
-      "@php artisan ziggy:generate --types resources/js/types/ziggy-auto-generated.js --types-only",
-      "pint --dirty"
-    ]
-  }
-}
-```
-
-**Note:** The `pint --dirty` command runs at the end because `ziggy:generate` produces unformatted code that needs to be cleaned up according to our formatting rules.
-
-### Usage
 Run the development setup script whenever you:
 - Add new models or modify existing ones
 - Update routes that need TypeScript definitions
@@ -43,3 +15,25 @@ Run the development setup script whenever you:
 ```bash
 composer dev-setup
 ```
+
+This single command:
+- Generates TypeScript types from PHP classes
+- Creates IDE helper files for autocompletion
+- Generates Ziggy route types
+- Formats any generated code with Pint
+
+## Configuration
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `composer.json` | Defines the `dev-setup` script under the `scripts` section |
+
+### Customization
+
+To modify what the `dev-setup` script does, edit the `scripts.dev-setup` array in `composer.json`. Each entry is a command that runs in sequence.
+
+The script runs `pint --dirty` at the end because some generators (like Ziggy) produce unformatted code that needs cleanup.
+
+To add your own workflow scripts, add new entries to the `scripts` section following the same pattern.

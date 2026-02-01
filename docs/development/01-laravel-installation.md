@@ -1,36 +1,85 @@
-# Laravel Installation
+# Laravel + Vue Foundation
 
-## Why This Step
-This step establishes the foundation of the starter kit by creating a fresh Laravel project with Vue.js integration. The Laravel installer provides a quick way to scaffold a project with pre-configured frontend tooling.
+## Overview
 
-## What It Does
-- Installs the Laravel CLI tool globally via Composer
-- Creates a new Laravel project with Vue.js starter kit
-- Sets up the basic project structure with Vue 3, Inertia.js, and frontend build tools
-- Prepares the project for further customization
+This starterkit comes with a pre-configured Laravel 12 and Vue 3 application, giving you a modern full-stack foundation out of the box. The stack includes:
 
-## Implementation
+- **Laravel 12** - PHP backend framework
+- **Vue 3** - Reactive frontend framework with Composition API
+- **Inertia.js** - Seamless Laravel-Vue integration without building an API
+- **TypeScript** - Type-safe frontend development
+- **Tailwind CSS** - Utility-first CSS framework
+- **Vite** - Fast frontend build tooling
 
-### Install Laravel CLI Tool
-```bash
-composer global require laravel/installer
+This foundation lets you start building features immediately instead of spending time on setup and configuration.
+
+## Usage
+
+With Inertia.js, you render Vue components directly from Laravel controllers:
+
+```php
+// app/Http/Controllers/DashboardController.php
+use Inertia\Inertia;
+
+public function index()
+{
+    return Inertia::render('Dashboard', [
+        'stats' => $this->getStats(),
+    ]);
+}
 ```
 
-### Create Laravel Project with Vue Starter Kit
-```bash
-laravel new new-app --vue --phpunit
+The corresponding Vue component receives the data as props:
+
+```vue
+<!-- resources/js/Pages/Dashboard.vue -->
+<script setup lang="ts">
+import type { PropType } from 'vue';
+
+interface Stats {
+    users: number;
+    orders: number;
+}
+
+const props = defineProps({
+    stats: {
+        type: Object as PropType<Stats>,
+        required: true,
+    },
+});
+</script>
+
+<template>
+    <div>
+        <p>Users: {{ stats.users }}</p>
+        <p>Orders: {{ stats.orders }}</p>
+    </div>
+</template>
 ```
 
-**Important:** When prompted to install npm dependencies, select "no" as we'll handle this later with the devcontainer.
+### Starting Development
 
-### Move Files to Root Directory
-Since we're creating a starter kit template, we need to move all files from the temporary project directory to the root:
+Use the VS Code "Dev: Start" task, or run:
 
 ```bash
-# Move files from vendor directory
-mv ./new-app/vendor/* ./vendor/
-rm -r ./new-app/vendor
-
-# Move the rest of the files
-cp -r ./new-app/. ./ && rm -rf ./new-app
+composer dev
 ```
+
+This starts the PHP server and Vite dev server together.
+
+## Configuration
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `vite.config.ts` | Frontend build configuration |
+| `tailwind.config.js` | Tailwind CSS customization |
+| `tsconfig.json` | TypeScript compiler options |
+| `config/inertia.php` | Inertia.js server-side settings |
+
+### Customization
+
+- **Add Vue plugins** in `resources/js/app.ts`
+- **Configure Tailwind theme** in `tailwind.config.js`
+- **Modify TypeScript settings** in `tsconfig.json`

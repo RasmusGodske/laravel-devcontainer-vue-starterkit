@@ -1,17 +1,62 @@
 # Devtools
 
-## Why This Step
+## Overview
 
-Development tools and scripts that improve the developer experience. These provide a consistent interface for common tasks and integrate with the quality tools (tarnished, lumby, reldo) for smart change tracking and AI diagnostics.
+The devtools scripts provide a consistent interface for common development tasks like testing, linting, and code review. They integrate with the quality tools (tarnished, lumby, reldo) to enable:
 
-## What It Does
+- **Smart change tracking** - only run checks when files have changed
+- **AI diagnosis** - get explanations when commands fail
+- **Unified workflow** - same commands work locally and in CI
 
-- Provides helper scripts for environment setup and dependency management
-- Organizes scripts by function (setup, test, lint, review)
-- Integrates with quality tools for smart development workflow
-- Creates symlinks for easy command access
+Instead of remembering different tool commands and flags, you use simple aliases like `test:php` and `lint:js` that handle the setup and integration automatically.
 
-## Directory Structure
+## Usage
+
+### Command Aliases
+
+The container provides symlinks for easy access to all devtools:
+
+```bash
+test:php                       # Run all tests
+test:php --filter=UserTest     # Run specific test
+lint:php                       # Run PHPStan static analysis
+lint:js                        # Run ESLint
+lint:ts                        # Run TypeScript type check
+review:code "Review changes"   # AI code review via reldo
+qa                             # Run all quality checks
+```
+
+### Running Scripts Directly
+
+You can also invoke scripts by path:
+
+```bash
+./devtools/test/php.sh --filter=UserTest
+./devtools/lint/php.sh
+./devtools/qa.sh --skip-phpstan
+```
+
+### Common Options
+
+Most scripts support:
+
+| Option | Description |
+|--------|-------------|
+| `--no-lumby` | Skip AI diagnosis on failure |
+| `--help` | Show usage information |
+
+### Quality Tool Integration
+
+Each test/lint script automatically:
+
+1. Wraps the command with `lumby` for AI diagnosis on failure
+2. Saves a `tarnished` checkpoint on success
+
+This means after running `lint:php`, tarnished knows that check is clean until you change PHP files.
+
+## Configuration
+
+### Directory Structure
 
 ```
 devtools/
@@ -34,42 +79,14 @@ devtools/
 └── serve.sh           # PHP server wrapper with restart handling
 ```
 
-## Key Components
+### Adding New Commands
 
-### Setup Scripts
+To add a new devtools command:
 
-Used by the "Dev: Start" VS Code task to initialize the environment:
+1. **Create the script** in the appropriate directory (`test/`, `lint/`, etc.)
+2. **Add a symlink** in the Dockerfile for easy access
+3. **Integrate with quality tools** - wrap with `lumby` and save `tarnished` checkpoints:
 
-| Script | Purpose |
-|--------|---------|
-| `setup/env.sh` | Creates `.env` from `.env.example` if missing |
-| `setup/composer.sh` | Installs/updates Composer dependencies |
-| `setup/npm.sh` | Installs/updates npm dependencies |
-| `setup/app-key.sh` | Generates `APP_KEY` if not set |
-| `setup/migrated.sh` | Waits for DB, runs migrations and seeds |
-| `setup/urls.sh` | Configures URLs for Codespaces vs local |
-
-### Test & Lint Scripts
-
-These integrate with the quality tools:
-
-| Script | Command Alias | Description |
-|--------|---------------|-------------|
-| `test/php.sh` | `test:php` | Run PHPUnit tests |
-| `lint/php.sh` | `lint:php` | Run PHPStan analysis |
-| `lint/js.sh` | `lint:js` | Run ESLint |
-| `lint/ts.sh` | `lint:ts` | Run TypeScript check |
-| `review/code.sh` | `review:code` | AI code review |
-| `qa.sh` | `qa` | Run all checks |
-
-### Quality Tool Integration
-
-Each test/lint script:
-1. Sets up the environment if needed
-2. Wraps the command with `lumby` for AI diagnosis on failure
-3. Saves a `tarnished` checkpoint on success
-
-Example from `test/php.sh`:
 ```bash
 # Run with lumby wrapping
 run_cmd php artisan test "$@"
@@ -81,52 +98,13 @@ if [ $exit_code -eq 0 ]; then
 fi
 ```
 
-## Usage
+### Script Reference
 
-### Using Command Aliases
-
-The Dockerfile creates symlinks for easy access:
-
-```bash
-test:php                       # Run all tests
-test:php --filter=UserTest     # Run specific test
-lint:php                       # Run PHPStan
-lint:js                        # Run ESLint
-review:code "Review changes"   # AI code review
-qa                             # Run all checks
-```
-
-### Using Scripts Directly
-
-```bash
-./devtools/test/php.sh --filter=UserTest
-./devtools/lint/php.sh
-./devtools/qa.sh --skip-phpstan
-```
-
-### Options
-
-Most scripts support:
-- `--no-lumby` - Skip AI diagnosis on failure
-- `--help` - Show usage information
-
-## VS Code Integration
-
-The "Dev: Start" task uses these scripts in sequence:
-
-1. `setup/env.sh` - Ensure .env exists
-2. `setup/composer.sh` - Install PHP dependencies
-3. `setup/app-key.sh` - Generate key if needed
-4. `setup/npm.sh` - Install npm dependencies
-5. Docker compose up - Start PostgreSQL and Redis
-6. `setup/migrated.sh` - Run migrations
-7. `setup/urls.sh` - Configure URLs
-8. `serve.sh` - Start Laravel server
-9. npm run dev - Start Vite
-
-## Adding New Commands
-
-1. Create script in appropriate directory (`test/`, `lint/`, etc.)
-2. Add symlink in Dockerfile
-3. Integrate with lumby and tarnished if appropriate
-4. Document in this file
+| Script | Alias | Description |
+|--------|-------|-------------|
+| `test/php.sh` | `test:php` | Run PHPUnit tests |
+| `lint/php.sh` | `lint:php` | Run PHPStan analysis |
+| `lint/js.sh` | `lint:js` | Run ESLint |
+| `lint/ts.sh` | `lint:ts` | Run TypeScript check |
+| `review/code.sh` | `review:code` | AI code review |
+| `qa.sh` | `qa` | Run all checks |

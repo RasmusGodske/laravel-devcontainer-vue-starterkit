@@ -1,19 +1,62 @@
-# Install Laravel Debugbar
+# Laravel Debugbar
 
-## Why This Step
-This step integrates Laravel Debugbar into your project to provide a powerful debugging tool that helps visualize queries, routes, and other performance metrics during development. It enhances the developer experience by making it easier to identify issues and optimize application performance.
+## Overview
 
-## What It Does
-Laravel Debugbar adds a toolbar to your application that displays debugging information such as:
-- Executed SQL queries
-- Memory usage
-- Route information
-- Request and response data
-- Session data
+Laravel Debugbar provides a powerful debugging toolbar that displays real-time insights into your application's performance and behavior. It helps you identify slow queries, track memory usage, inspect routes, and debug request/response data - all without adding `dd()` statements or log entries throughout your code.
 
-## Implementation
-Run the following command to install the package via Composer:
+## Usage
+
+Debugbar appears automatically as a toolbar at the bottom of your browser when running in development mode. Simply visit any page in your application to see it.
+
+### Available Tabs
+
+The toolbar includes these tabs:
+
+| Tab | What it Shows |
+|-----|---------------|
+| **Messages** | Custom debug messages logged via `Debugbar::info()` |
+| **Timeline** | Request execution timeline with timing breakdowns |
+| **Exceptions** | Any exceptions thrown during the request |
+| **Views** | Rendered Blade views and their data |
+| **Route** | Current route, controller, and middleware |
+| **Queries** | All SQL queries with execution time and bindings |
+| **Models** | Eloquent models loaded and their counts |
+| **Session** | Current session data |
+| **Request** | Request headers, cookies, and input data |
+
+### Logging Custom Messages
+
+You can log messages to Debugbar from your code:
+
+```php
+use Barryvdh\Debugbar\Facades\Debugbar;
+
+Debugbar::info('User logged in');
+Debugbar::warning('Cache miss for key: ' . $key);
+Debugbar::error('Payment failed');
+```
+
+## Configuration
+
+### Environment Variable
+
+Debugbar is controlled via environment variable in `.env`:
+
+```env
+DEBUGBAR_ENABLED=true
+```
+
+Set to `false` to disable the toolbar (useful for E2E tests or when it interferes with debugging).
+
+### Configuration File
+
+To customize Debugbar behavior, publish its configuration:
 
 ```bash
-composer require --dev barryvdh/laravel-debugbar
+php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
 ```
+
+This creates `config/debugbar.php` where you can:
+- Enable/disable specific collectors (tabs)
+- Configure storage options
+- Adjust display settings

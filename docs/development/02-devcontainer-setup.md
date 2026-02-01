@@ -1,117 +1,96 @@
 # VS Code Dev Container Setup
 
-## Why This Step
-VS Code Dev Containers provide a fully configured development environment that runs inside Docker. Unlike Laravel Sail, PHP runs directly in the devcontainer where your IDE and extensions operate, providing better performance, simpler commands, and seamless IDE integration.
+## Overview
 
-## What It Does
-- Creates a devcontainer with PHP, Composer, and Node.js pre-installed
-- Configures Docker services for PostgreSQL and Redis
-- Sets up the development environment with proper networking and volume mounting
-- Enables running Laravel artisan commands directly without any wrapper
-- Configures VS Code extensions and settings automatically
+This starterkit uses VS Code Dev Containers to provide a fully configured, containerized development environment. Unlike Laravel Sail, PHP runs directly in the devcontainer where your IDE operates, giving you:
 
-## Why Not Laravel Sail?
+- **Faster command execution** - Run `php artisan` directly, no wrapper needed
+- **Better IDE integration** - IntelliSense, debugging, and extensions all work seamlessly
+- **Consistent environment** - Every developer gets the same setup, no "works on my machine" issues
+- **Lower complexity** - One container with everything, not nested containers
 
-This starter kit intentionally does not use Laravel Sail because:
+### What's Included
 
-1. **Redundant containerization**: When using devcontainers, Sail creates an extra container layer
-2. **Performance overhead**: Commands go through `sail` wrapper instead of running directly
-3. **IDE disconnect**: Your IDE runs in devcontainer but PHP runs in Sail container
-4. **Complexity**: Debugging requires extra configuration for the additional layer
+The devcontainer comes pre-configured with:
 
-By running PHP directly in the devcontainer, you get:
-- Faster command execution (`php artisan` vs `sail artisan`)
-- Better IDE integration (IntelliSense, debugging)
-- Simpler mental model
-- Lower resource usage
-
-## Implementation
-
-### Prerequisites
-- Docker Desktop installed
-- VS Code with Dev Containers extension
-
-### Open in Dev Container
-
-1. Clone the repository
-2. Open in VS Code
-3. Click "Reopen in Container" when prompted, or use Command Palette (F1) → "Dev Containers: Reopen in Container"
-
-The devcontainer will automatically:
-- Build the development environment
-- Install PHP dependencies via composer
-- Install Node dependencies via npm
-- Create `.env` file and generate app key
-- Start PostgreSQL and Redis containers
-
-### What Gets Installed
-
-The devcontainer includes:
-- **PHP 8.x** with extensions:
-  - pgsql, redis, bcmath, gd, mbstring, curl, xml, zip, intl, soap
+- **PHP 8.x** with extensions: pgsql, redis, bcmath, gd, mbstring, curl, xml, zip, intl, soap
 - **Composer** (latest)
 - **Node.js 20** with npm
 - **PostgreSQL client** (psql)
 - **Git** with enhanced zsh plugins
 - **Docker-in-Docker** for running additional containers
 
-### Run Database Migrations
+## Usage
 
-Once the container is ready:
-```bash
-php artisan migrate
-```
+### Opening the Project
 
-### Start Development Servers
+1. Open the project in VS Code
+2. Click "Reopen in Container" when prompted, or use Command Palette (F1) → "Dev Containers: Reopen in Container"
+
+The devcontainer automatically installs dependencies and sets up your environment on first open.
+
+### Running the Development Server
 
 ```bash
 composer dev
 ```
 
-This starts:
-- Laravel dev server on http://localhost:8080
-- Vite dev server with hot reload
-- Queue worker
-- Log viewer (pail)
+This starts Laravel dev server, Vite with hot reload, queue worker, and log viewer.
 
 Or start services individually:
+
 ```bash
 php artisan serve --host=0.0.0.0 --port=8080
 npm run dev
 ```
 
-## Configuration Files
+### Running Migrations
 
-### `.devcontainer/Dockerfile`
-Defines the container image with PHP and all required extensions.
+```bash
+php artisan migrate
+```
 
-### `.devcontainer/devcontainer.json`
-Configures:
-- Volume mounts for node_modules and vendor
-- Port forwarding (8080)
-- VS Code extensions to install
-- Initialization and post-create commands
+### Helpful Aliases
 
-### `.devcontainer/initializeCommand.sh`
-Runs on host before container starts:
-- Creates Docker network for services
+The devcontainer includes these shortcuts:
 
-### `.devcontainer/postCreateCommand.sh`
-Runs inside container after creation:
-- Installs composer dependencies
-- Installs npm dependencies
-- Creates .env file if needed
-- Generates application key
+| Alias | Command |
+|-------|---------|
+| `art` | `php artisan` |
+| `artisan` | `php artisan` |
+| `test` | `php artisan test` |
+| `migrate` | `php artisan migrate` |
 
-## Useful Aliases
+### Rebuilding the Container
 
-The devcontainer includes helpful aliases:
-- `art` → `php artisan`
-- `artisan` → `php artisan`
-- `test` → `php artisan test`
-- `migrate` → `php artisan migrate`
+If you modify the Dockerfile or devcontainer.json:
 
-Use them like: `art migrate` instead of `php artisan migrate`
+Command Palette (F1) → "Dev Containers: Rebuild Container"
+
+## Configuration
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `.devcontainer/Dockerfile` | Container image with PHP and extensions |
+| `.devcontainer/devcontainer.json` | VS Code extensions, port forwarding, volume mounts |
+| `.devcontainer/initializeCommand.sh` | Runs on host before container starts (creates Docker network) |
+| `.devcontainer/postCreateCommand.sh` | Runs after container creation (installs dependencies, creates .env) |
+
+### Customization
+
+**Adding PHP extensions:**
+Edit `.devcontainer/Dockerfile` and add to the `install-php-extensions` command.
+
+**Adding VS Code extensions:**
+Edit `.devcontainer/devcontainer.json` under `customizations.vscode.extensions`.
+
+**Changing the port:**
+Update in three places:
+1. `.env`: `APP_URL=http://localhost:YOUR_PORT`
+2. `.devcontainer/devcontainer.json`: `forwardPorts`
+3. Composer dev scripts in `composer.json`
 
 ## Troubleshooting
 
@@ -124,11 +103,6 @@ Use them like: `art migrate` instead of `php artisan migrate`
 sudo chown -R vscode:vscode /home/vscode/project
 ```
 
-### Port 8080 already in use
-Update port in:
-1. `.env`: `APP_URL=http://localhost:YOUR_PORT`
-2. `.devcontainer/devcontainer.json`: `forwardPorts`
-3. Composer dev scripts
+---
 
-## Next Steps
-See [03-debug-configuration.md](03-debug-configuration.md) for setting up Xdebug.
+**Next:** [Debug Configuration](03-debug-configuration.md) - Set up Xdebug for step-through debugging.

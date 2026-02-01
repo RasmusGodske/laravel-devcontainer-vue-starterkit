@@ -1,23 +1,16 @@
 # Quality Tools
 
-## Why This Step
+## Overview
 
-Running code checks manually is tedious and error-prone. Developers often forget to run tests after making changes, or spend time diagnosing cryptic error messages. The quality tools solve these problems:
+Running code checks manually is tedious and error-prone. Developers often forget to run tests after making changes, or spend time diagnosing cryptic error messages. This starterkit includes three quality tools that create a smart development workflow:
 
 - **tarnished** - Tracks which checks need re-running after file changes
 - **lumby** - Provides AI-powered diagnosis when commands fail
 - **reldo** - Enables AI-powered code review before committing
 
-Together, they create a smart development workflow where you always know what needs checking, get help when things fail, and catch issues before they become problems.
+Together, they ensure you always know what needs checking, get help when things fail, and catch issues before they become problems.
 
-## What It Does
-
-- Installs three PyPI tools via `uv tool install` in the Dockerfile
-- Creates symlinks for easy command access (`test:php`, `lint:php`, etc.)
-- Integrates quality tracking into devtools scripts
-- Enables AI diagnosis on command failures
-
-## Tools Overview
+## Usage
 
 ### tarnished - Change Tracking
 
@@ -64,9 +57,7 @@ review:code "Review the authentication changes"
 review:code "Review app/Services/AuthService.php"
 ```
 
-## Available Commands
-
-These symlinks are created in the Dockerfile:
+### Available Commands
 
 | Command | Description |
 |---------|-------------|
@@ -79,67 +70,50 @@ These symlinks are created in the Dockerfile:
 
 All commands support `--no-lumby` to disable AI diagnosis.
 
-## Implementation
+### Workflow Example
 
-### 1. Dockerfile Updates
+```bash
+# 1. Make some PHP changes
+vim app/Models/User.php
 
-The tools are installed for both vscode user and root (for CI):
+# 2. Check what needs running
+tarnished status
+# {"lint:php": "tarnished", "test:php": "tarnished", "lint:js": "clean"}
 
-```dockerfile
-# Install quality tools via uv (vscode user)
-USER vscode
-RUN /home/vscode/.local/bin/uv tool install lumby
-RUN /home/vscode/.local/bin/uv tool install reldo
-RUN /home/vscode/.local/bin/uv tool install tarnished
-USER root
-RUN echo 'export PATH="$PATH:/home/vscode/.local/bin"' >> /home/vscode/.zshrc
+# 3. Run the tarnished checks
+lint:php
+test:php
 
-# Install for root (CI environments)
-RUN /root/.local/bin/uv tool install lumby \
-    && /root/.local/bin/uv tool install reldo \
-    && /root/.local/bin/uv tool install tarnished \
-    && ln -s /root/.local/bin/lumby /usr/local/bin/lumby \
-    && ln -s /root/.local/bin/reldo /usr/local/bin/reldo \
-    && ln -s /root/.local/bin/tarnished /usr/local/bin/tarnished
+# 4. Verify all clean
+tarnished status
+# {"lint:php": "clean", "test:php": "clean", "lint:js": "clean"}
+
+# 5. Get AI review before committing
+review:code "Review User model changes"
 ```
 
-### 2. Devtools Symlinks
+### CI Integration
 
-```dockerfile
-RUN ln -s /home/vscode/project/devtools/test/php.sh /usr/local/bin/test:php \
-    && ln -s /home/vscode/project/devtools/lint/php.sh /usr/local/bin/lint:php \
-    && ln -s /home/vscode/project/devtools/lint/js.sh /usr/local/bin/lint:js \
-    && ln -s /home/vscode/project/devtools/lint/ts.sh /usr/local/bin/lint:ts \
-    && ln -s /home/vscode/project/devtools/review/code.sh /usr/local/bin/review:code \
-    && ln -s /home/vscode/project/devtools/qa.sh /usr/local/bin/qa
+In CI environments without `ANTHROPIC_API_KEY`, lumby automatically disables itself:
+
+```bash
+# In CI, this just runs the command directly (no AI diagnosis)
+test:php
 ```
 
-### 3. Devtools Structure
+The tarnished checkpoints still work, allowing you to skip unchanged checks in CI pipelines.
 
-The devtools scripts are organized by function:
+## Configuration
 
-```
-devtools/
-├── setup/              # Environment setup
-│   ├── env.sh         # Create .env from .env.example
-│   ├── composer.sh    # Install PHP dependencies
-│   ├── npm.sh         # Install npm dependencies
-│   ├── app-key.sh     # Generate APP_KEY
-│   ├── migrated.sh    # Run migrations
-│   └── urls.sh        # Configure URLs
-├── test/
-│   └── php.sh         # PHPUnit + lumby + tarnished
-├── lint/
-│   ├── php.sh         # PHPStan + lumby + tarnished
-│   ├── js.sh          # ESLint + lumby + tarnished
-│   └── ts.sh          # vue-tsc + lumby
-├── review/
-│   └── code.sh        # reldo wrapper
-├── qa.sh              # Run all checks
-└── serve.sh           # Laravel server wrapper
-```
+### Key Files
 
-### 4. tarnished Configuration
+| File | Purpose |
+|------|---------|
+| `.tarnished/config.json` | Defines which files each profile tracks |
+| `.reldo/settings.json` | Configures the AI code reviewer |
+| `.reldo/orchestrator.md` | Defines the review workflow |
+
+### tarnished Configuration
 
 The `.tarnished/config.json` file defines which files each profile tracks:
 
@@ -172,7 +146,7 @@ The `.tarnished/config.json` file defines which files each profile tracks:
 }
 ```
 
-### 5. reldo Configuration
+### reldo Configuration
 
 The `.reldo/settings.json` configures the code reviewer:
 
@@ -194,38 +168,3 @@ The `.reldo/orchestrator.md` defines the review workflow:
 - Runs linters for changed file types
 - Delegates to specialized reviewer agents (architecture-reviewer, frontend-reviewer)
 - Aggregates results into a final PASS/FAIL status
-
-The orchestrator ensures consistent, thorough reviews by coordinating multiple specialized agents.
-
-## Workflow Example
-
-```bash
-# 1. Make some PHP changes
-vim app/Models/User.php
-
-# 2. Check what needs running
-tarnished status
-# {"lint:php": "tarnished", "test:php": "tarnished", "lint:js": "clean"}
-
-# 3. Run the tarnished checks
-lint:php
-test:php
-
-# 4. Verify all clean
-tarnished status
-# {"lint:php": "clean", "test:php": "clean", "lint:js": "clean"}
-
-# 5. Get AI review before committing
-review:code "Review User model changes"
-```
-
-## CI Integration
-
-In CI environments without `ANTHROPIC_API_KEY`, lumby automatically disables itself:
-
-```bash
-# In CI, this just runs the command directly (no AI diagnosis)
-test:php
-```
-
-The tarnished checkpoints still work, allowing you to skip unchanged checks in CI pipelines.

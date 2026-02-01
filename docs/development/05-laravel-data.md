@@ -1,19 +1,126 @@
 # Laravel Data Package
 
-## Why This Step
-Spatie's [Laravel-Data](https://spatie.be/docs/laravel-data/v4/introduction) package provides a powerful way to create data transfer objects (DTOs) with built-in validation, transformation, and type safety. This reduces boilerplate code and improves data handling consistency across your application.
+## Overview
 
-## What It Does
-- Installs the Laravel Data package for creating structured data objects
-- Enables automatic validation and transformation of incoming data
-- Provides type-safe data transfer objects for API responses and form handling
-- Integrates seamlessly with Laravel's validation and serialization systems
+Spatie's [Laravel-Data](https://spatie.be/docs/laravel-data/v4/introduction) package provides type-safe data transfer objects (DTOs) with built-in validation and transformation. Instead of passing around arrays or writing boilerplate validation logic, you define structured Data classes that:
 
-## Implementation
+- Validate incoming requests automatically
+- Transform data for API responses
+- Provide full IDE autocompletion and type safety
+- Replace FormRequests with a cleaner, more reusable pattern
 
-### Install Laravel Data Package
+## Usage
+
+### Creating a Data Class
+
+Generate a new Data class using Artisan:
+
 ```bash
-composer require spatie/laravel-data
+php artisan make:data UserData
 ```
 
-The package will be automatically registered through Laravel's package discovery, making it immediately available for use in your application.
+This creates a class in `app/Data/`:
+
+```php
+namespace App\Data;
+
+use Spatie\LaravelData\Data;
+
+class UserData extends Data
+{
+    public function __construct(
+        public string $name,
+        public string $email,
+        public ?string $phone = null,
+    ) {}
+}
+```
+
+### Using Data Classes in Controllers
+
+Data classes replace FormRequests for validation and typing:
+
+```php
+use App\Data\UserData;
+
+class UserController extends Controller
+{
+    public function store(UserData $data)
+    {
+        // $data is already validated and typed
+        User::create($data->toArray());
+
+        return redirect()->route('users.index');
+    }
+}
+```
+
+### Adding Validation Rules
+
+Use attributes to define validation:
+
+```php
+use Spatie\LaravelData\Attributes\Validation\Email;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Required;
+
+class UserData extends Data
+{
+    public function __construct(
+        #[Required, Max(255)]
+        public string $name,
+
+        #[Required, Email]
+        public string $email,
+
+        public ?string $phone = null,
+    ) {}
+}
+```
+
+### Transforming Models to Data
+
+Create Data objects from Eloquent models:
+
+```php
+// Single model
+$userData = UserData::from($user);
+
+// Collection of models
+$users = UserData::collect(User::all());
+```
+
+### Nested Data Objects
+
+Data classes can contain other Data classes:
+
+```php
+class OrderData extends Data
+{
+    public function __construct(
+        public string $order_number,
+        public CustomerData $customer,
+        /** @var ProductData[] */
+        public array $products,
+    ) {}
+}
+```
+
+## Configuration
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `config/data.php` | Package configuration (publish with `php artisan vendor:publish --tag=data-config`) |
+| `app/Data/` | Your Data classes |
+
+### Customization
+
+Common configuration options in `config/data.php`:
+
+- **date_format** - Default format for date casting
+- **transformers** - Custom transformers for complex types
+- **casts** - Global type casts
+
+For most projects, the defaults work well. See the [Laravel Data documentation](https://spatie.be/docs/laravel-data/v4/as-a-resource/from-data-to-resource) for advanced customization.
