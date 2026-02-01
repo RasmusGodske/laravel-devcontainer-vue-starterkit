@@ -1,0 +1,26 @@
+{
+  "profiles": {
+    "lint:php": {
+      "patterns": [
+        "app/**/*.php",
+        "tests/**/*.php",
+        "config/**/*.php",
+        "database/**/*.php",
+        "routes/**/*.php"
+      ]
+    },
+    "lint:js": {
+      "patterns": [
+        "resources/js/**/*.vue",
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx"
+      ]
+    },
+    "test:php": {
+      "patterns": [
+        "app/**/*.php",
+        "tests/**/*.php"
+      ]
+    }
+  }
+}

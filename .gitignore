@@ -21,9 +21,6 @@ yarn-error.log
 /.idea
 /.nova
 /.zed
-.claude/python-hooks/hooks.log
-.claude/hooks/hooks.log
-
 # Python cache files
 __pycache__/
 *.pyc
@@ -34,3 +31,9 @@ __pycache__/
 /e2e/reports/
 /playwright-report/
 /test-results/
+
+# Quality Tools
+# tarnished state is machine-specific (config.json is committed)
+.tarnished/state.json
+# reldo logs are auto-generated (settings.json and orchestrator.md are committed)
+.reldo/sessions/

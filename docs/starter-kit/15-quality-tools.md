@@ -141,7 +141,7 @@ devtools/
 
 ### 4. tarnished Configuration
 
-Create `.tarnished/config.json` to define file tracking profiles:
+The `.tarnished/config.json` file defines which files each profile tracks:
 
 ```json
 {
@@ -174,22 +174,28 @@ Create `.tarnished/config.json` to define file tracking profiles:
 
 ### 5. reldo Configuration
 
-Create `.reldo/settings.json`:
+The `.reldo/settings.json` configures the code reviewer:
 
 ```json
 {
-  "review_prompt_path": ".reldo/orchestrator.md",
+  "prompt": ".reldo/orchestrator.md",
   "model": "claude-sonnet-4-20250514",
-  "timeout": 180,
-  "allowed_tools": ["Read", "Glob", "Grep", "Bash"],
+  "timeout_seconds": 180,
+  "allowed_tools": ["Read", "Glob", "Grep", "Bash", "Task", ...],
   "logging": {
     "enabled": true,
-    "path": ".reldo/"
+    "output_dir": ".reldo"
   }
 }
 ```
 
-Create `.reldo/orchestrator.md` with your review guidelines.
+The `.reldo/orchestrator.md` defines the review workflow:
+- Checks tarnished status before reviewing
+- Runs linters for changed file types
+- Delegates to specialized reviewer agents (architecture-reviewer, frontend-reviewer)
+- Aggregates results into a final PASS/FAIL status
+
+The orchestrator ensures consistent, thorough reviews by coordinating multiple specialized agents.
 
 ## Workflow Example
 
