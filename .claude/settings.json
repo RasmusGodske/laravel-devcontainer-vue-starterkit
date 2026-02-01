@@ -6,6 +6,7 @@
   "permissions": {
     "allow": [
       "Edit",
+      "Write",
       "WebFetch",
       "WebSearch",
       "Glob",
@@ -13,50 +14,59 @@
       "LS",
       "Read",
       "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(sed:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(cut:*)",
+      "Bash(awk:*)",
+      "Bash(xargs:*)",
       "Bash(tree:*)",
-      "Bash(composer --version:*)",
       "Bash(./vendor/bin/pint:*)",
-      "Bash(php artisan make:model:*)",
-      "Bash(php artisan migrate:*)",
+      "Bash(./vendor/bin/phpstan:*)",
+      "Bash(npm run type-check:files --:*)",
+      "Bash(php artisan:*)",
+      "Bash(composer:*)",
+      "Bash(test:php:*)",
+      "Bash(lint:php:*)",
+      "Bash(lint:js:*)",
+      "Bash(lint:ts:*)",
+      "Bash(qa:*)",
+      "Bash(review:code:*)",
+      "Bash(tarnished:*)",
+      "Bash(./devtools/test/php.sh:*)",
+      "Bash(./devtools/lint/php.sh:*)",
+      "Bash(./devtools/lint/js.sh:*)",
+      "Bash(./devtools/lint/ts.sh:*)",
+      "Bash(./devtools/qa.sh:*)",
+      "Bash(./devtools/review/code.sh:*)",
+      "Bash(reldo review:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh pr view:*)",
+      "Bash(git diff --name-only HEAD)",
       "Skill(*)",
       "mcp__laravel-boost",
       "mcp__serena"
     ]
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR/devtools/claude-hooks/E2EPathValidator && uv run python main.py",
-            "timeout": 120
-          }
-        ]
+  "enabledMcpjsonServers": [
+    "laravel-boost",
+    "serena"
+  ],
+  "enabledPlugins": {
+    "liv-hooks@claude-liv-conventions": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-liv-conventions": {
+      "source": {
+        "source": "github",
+        "repo": "RasmusGodske/claude-liv-conventions"
       }
-    ],
-    "SubagentStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR/devtools/claude-hooks/SubAgentReviewer && uv run python main.py",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR/devtools/claude-hooks/SubAgentReviewer && uv run python main.py",
-            "timeout": 120
-          }
-        ]
-      }
-    ]
+    }
   }
 }
