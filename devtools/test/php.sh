@@ -12,8 +12,10 @@
 # Alias: test:php (via symlink in /usr/local/bin)
 #
 # Options:
-#   --debug     Enable Xdebug (disabled by default for performance)
-#   --no-lumby  Skip AI diagnosis on failure
+#   --debug            Enable Xdebug (disabled by default for performance)
+#   --no-lumby         Skip AI diagnosis on failure
+#   --status           Show queue status and exit
+#   --wait-timeout=N   Seconds to wait for queue lock (default: 600)
 #
 # Environment variables:
 #   SKIP_NPM_BUILD=1  - Skip npm install and build (faster, but view tests may fail)
@@ -25,21 +27,36 @@ SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
+source "$SCRIPT_DIR/../lib/queue.sh"
+queue_init "$SCRIPT_DIR/.php" "test:php"
+
 cd "$PROJECT_DIR"
 
 # Parse custom options
 USE_LUMBY=true
 USE_XDEBUG=false
+SHOW_STATUS=false
+WAIT_TIMEOUT=600
 ARGS=()
 for arg in "$@"; do
     if [ "$arg" = "--no-lumby" ]; then
         USE_LUMBY=false
     elif [ "$arg" = "--debug" ]; then
         USE_XDEBUG=true
+    elif [ "$arg" = "--status" ]; then
+        SHOW_STATUS=true
+    elif [[ "$arg" == --wait-timeout=* ]]; then
+        WAIT_TIMEOUT="${arg#--wait-timeout=}"
     else
         ARGS+=("$arg")
     fi
 done
+
+# Handle --status: show queue state and exit
+if [ "$SHOW_STATUS" = true ]; then
+    queue_status
+    exit 0
+fi
 
 # Disable Xdebug by default for performance (~6x faster)
 # Use --debug flag to enable Xdebug when you need to debug tests
@@ -103,6 +120,9 @@ if [ "${SKIP_NPM_BUILD:-0}" != "1" ]; then
     fi
 fi
 
+# Acquire queue lock (waits if another test:php is running)
+queue_acquire --timeout="$WAIT_TIMEOUT" --command="test:php $*"
+
 echo "=== Running tests ==="
 
 # Pass all arguments to php artisan test
@@ -121,5 +141,7 @@ set -e
 if [ $exit_code -eq 0 ]; then
     tarnished save test:php 2>/dev/null || true
 fi
+
+queue_release --exit-code=$exit_code
 
 exit $exit_code

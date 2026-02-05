@@ -37,6 +37,8 @@ __pycache__/
 .tarnished/state.json
 # reldo logs are auto-generated (settings.json and orchestrator.md are committed)
 .reldo/sessions/
+# test queue runtime data (lock files, status, history)
+devtools/test/.php/
 
 # User profile (personal, not committed)
 .claude-user-profile.md

@@ -173,6 +173,17 @@ qa --skip-phpstan               # Skip PHPStan
 
 **Why devtools?** These scripts auto-setup the environment and use `lumby` for AI diagnosis on failures—reducing context usage in your session.
 
+### Test Queue System
+
+`test:php` uses a queue to prevent concurrent runs from bottlenecking each other. If tests are already running, your run **waits automatically** — no action needed.
+
+| Command | Purpose |
+|---------|---------|
+| `test:php --status` | Show who's running/waiting in the PHP test queue |
+| `test:php --wait-timeout=N` | Set max wait time in seconds (default: 600) |
+
+**For AI agents:** Do NOT kill or retry test processes that appear to be "hanging" — they may be waiting in the queue. Use `--status` to check. The queue handles serialization automatically.
+
 ---
 
 ## Dev Environment
