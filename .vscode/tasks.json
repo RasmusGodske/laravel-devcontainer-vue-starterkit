@@ -5,16 +5,16 @@
       "label": "Dev: Start",
       "dependsOn": [
         "Setup: Ensure .env",
+        "Setup: Configure Access",
         "Setup: Ensure Composer",
         "Setup: Ensure APP_KEY",
         "Setup: Ensure npm",
         "service:database",
         "service:cache",
         "Setup: Ensure migrated",
-        "Setup: Configure URLs",
         "service:serve",
         "service:vite",
-        "service:logs",
+        "service:logs"
       ],
       "dependsOrder": "sequence",
       "icon": {
@@ -155,19 +155,18 @@
       "problemMatcher": []
     },
     {
-      "label": "Setup: Configure URLs",
+      "label": "Setup: Configure Access",
       "type": "shell",
-      "command": "./devtools/setup/urls.sh run",
+      "command": "./devtools/setup/configure-access.sh run",
       "icon": {
         "color": "terminal.ansiYellow",
         "id": "globe"
       },
       "presentation": {
-        "focus": false,
+        "focus": true,
         "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
+        "reveal": "always",
+        "showReuseMessage": false
       },
       "options": {
         "cwd": ""

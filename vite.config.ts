@@ -3,10 +3,13 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
+const vitePort = parseInt(process.env.VITE_PORT || '') || 5173;
+
 export default defineConfig({
     server: {
         host: '0.0.0.0',
-        origin: process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173',
+        port: vitePort,
+        origin: process.env.VITE_DEV_SERVER_URL || `http://localhost:${vitePort}`,
         cors: true,
         hmr: {
             host: process.env.VITE_HMR_HOST || 'localhost',

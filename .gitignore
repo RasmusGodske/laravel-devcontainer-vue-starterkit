@@ -35,6 +35,9 @@ __pycache__/
 # Quality Tools
 # tarnished state is machine-specific (config.json is committed)
 .tarnished/state.json
+
+# Devtools local preferences
+devtools/setup/.access.json
 # reldo logs are auto-generated (settings.json and orchestrator.md are committed)
 .reldo/sessions/
 # test queue runtime data (lock files, status, history)

@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-PORT=${E2E_PORT:-8081}
+PORT=${E2E_PORT:-8090}
 HOST=${E2E_HOST:-127.0.0.1}
 ENV_FILE=".env.e2e"
 PID_FILE="/tmp/e2e-server.pid"

@@ -100,7 +100,7 @@ E2E tests use `.env.e2e` for isolated settings:
 | Setting | Value | Purpose |
 |---------|-------|---------|
 | `APP_ENV` | local | Enable testing routes |
-| `APP_PORT` | 8081 | Avoid conflict with dev server (8080) |
+| `APP_PORT` | 8090 | Avoid conflict with dev server (8080) |
 | `DB_CONNECTION` | testing | Use SQLite database |
 | `DEBUGBAR_ENABLED` | false | Prevent console noise |
 | `TELESCOPE_ENABLED` | false | Reduce overhead |
@@ -125,7 +125,7 @@ npm run e2e:debug        # Debug mode
 | **Smoke tests** | Every route needs `smoke.spec.ts` |
 | **Auth tests** | Use `authenticatedPage` fixture |
 | **No-auth tests** | Use `page` fixture directly |
-| **Port** | 8081 (E2E), 8080 (dev) |
+| **Port** | 8090 (E2E), 8080 (dev) |
 
 ## Route-Based Test Validation
 

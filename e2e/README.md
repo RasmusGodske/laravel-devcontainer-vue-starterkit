@@ -170,7 +170,7 @@ These endpoints are only available when `APP_ENV=local` or `APP_ENV=testing`.
 ### playwright.config.ts
 
 Key settings:
-- **baseURL**: `http://localhost:8081` (E2E server port)
+- **baseURL**: `http://localhost:8090` (E2E server port)
 - **webServer**: Automatically starts the E2E server before tests
 - **testDir**: `./e2e/tests`
 - **reporters**: HTML and list reporters
@@ -260,7 +260,7 @@ bash e2e/scripts/e2e-server.sh start
 ### Tests timing out
 
 1. Increase timeout in `playwright.config.ts`
-2. Check if the server is actually running on port 8081
+2. Check if the server is actually running on port 8090
 3. Check the `.env.e2e` configuration
 
 ### Database issues

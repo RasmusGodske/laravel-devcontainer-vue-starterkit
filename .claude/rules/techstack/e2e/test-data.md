@@ -186,7 +186,7 @@ export class TestDataHelper {
   private baseURL: string
   private userId: number | null = null
 
-  constructor(request: APIRequestContext, baseURL = 'http://localhost:8081') {
+  constructor(request: APIRequestContext, baseURL = 'http://localhost:8090') {
     this.request = request
     this.baseURL = baseURL
   }
@@ -247,7 +247,7 @@ export const test = base.extend<{
    * Manual test data control.
    */
   testDataHelper: async ({ request }, use) => {
-    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8081'
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8090'
     const helper = new TestDataHelper(request, baseURL)
     await use(helper)
     await helper.cleanup()
@@ -257,7 +257,7 @@ export const test = base.extend<{
    * Pre-created test data with automatic cleanup.
    */
   testData: async ({ request }, use) => {
-    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8081'
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8090'
     const helper = new TestDataHelper(request, baseURL)
     const data = await helper.createTestData()
     await use(data)
@@ -268,7 +268,7 @@ export const test = base.extend<{
    * Page logged in as a test user with automatic cleanup.
    */
   authenticatedPage: async ({ page, request }, use) => {
-    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8081'
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8090'
     const helper = new TestDataHelper(request, baseURL)
 
     // Create test data

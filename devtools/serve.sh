@@ -1,7 +1,16 @@
 #!/bin/bash
 # Wrapper script for php artisan serve that handles restarts gracefully
+# Reads APP_PORT from .env (set by devtools/setup/configure-access.sh)
 
-PORT="${1:-8080}"
+cd /home/vscode/project
+
+# Read APP_PORT from .env, fallback to 8080
+read_app_port() {
+    grep '^APP_PORT=' .env 2>/dev/null | cut -d= -f2 | head -1
+}
+
+PORT="${1:-$(read_app_port)}"
+PORT="${PORT:-8080}"
 HOST="${2:-0.0.0.0}"
 
 kill_port() {

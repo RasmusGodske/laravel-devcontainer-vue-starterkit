@@ -33,7 +33,7 @@ export default defineConfig({
   // Shared settings for all the projects below
   use: {
     // Base URL for the Laravel E2E server
-    baseURL: process.env.E2E_BASE_URL || 'http://localhost:8081',
+    baseURL: process.env.E2E_BASE_URL || 'http://localhost:8090',
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -93,7 +93,7 @@ export default defineConfig({
   // Run your local dev server before starting the tests
   webServer: {
     command: 'bash e2e/scripts/e2e-server.sh start',
-    url: 'http://localhost:8081',
+    url: 'http://localhost:8090',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     stdout: 'pipe',

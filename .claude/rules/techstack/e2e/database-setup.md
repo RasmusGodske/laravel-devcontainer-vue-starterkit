@@ -27,8 +27,8 @@ Create `.env.e2e` in project root:
 # E2E Testing Environment
 APP_ENV=local
 APP_DEBUG=true
-APP_PORT=8081
-APP_URL=http://localhost:8081
+APP_PORT=8090
+APP_URL=http://localhost:8090
 
 # Use SQLite for isolation
 DB_CONNECTION=testing
@@ -50,7 +50,7 @@ LOG_LEVEL=warning
 **Key settings:**
 - `APP_ENV=local` - Required for testing routes to be registered
 - `DB_CONNECTION=testing` - Uses SQLite connection from `config/database.php`
-- `APP_PORT=8081` - Different from dev server (8080) to avoid conflicts
+- `APP_PORT=8090` - Different from dev server (8080) to avoid conflicts
 
 ### 2. Database Connection (`config/database.php`)
 
@@ -106,8 +106,8 @@ php artisan migrate:fresh --force
 # php artisan db:seed --class="YourSeeder" --force
 
 # 7. Start server
-echo "Starting server on port 8081..."
-php artisan serve --host=0.0.0.0 --port=8081
+echo "Starting server on port 8090..."
+php artisan serve --host=0.0.0.0 --port=8090
 ```
 
 **Make it executable:**
@@ -125,7 +125,7 @@ export default defineConfig({
 
   webServer: {
     command: './e2e/scripts/e2e-server.sh',
-    url: 'http://localhost:8081',
+    url: 'http://localhost:8090',
     reuseExistingServer: !process.env.CI && false,
     timeout: 120 * 1000,  // 2 minutes for build + migrate
     stdout: 'ignore',
@@ -146,9 +146,9 @@ npm run e2e
     │   ├── source .env.e2e (load environment)
     │   ├── touch database/e2e.sqlite
     │   ├── php artisan migrate:fresh
-    │   └── php artisan serve :8081
+    │   └── php artisan serve :8090
     │
-    ├── Tests run against :8081
+    ├── Tests run against :8090
     │   ├── Each test creates its own data via API
     │   └── Each test cleans up after itself
     │
