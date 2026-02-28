@@ -173,6 +173,21 @@ qa --skip-phpstan               # Skip PHPStan
 
 **Why devtools?** These scripts auto-setup the environment and use `lumby` for AI diagnosis on failures—reducing context usage in your session.
 
+### Dependency Analysis (Knip)
+
+Knip analyzes the frontend dependency graph. Use it to check impact before modifying files and to find dead code.
+
+```bash
+# Check what depends on a file (before modifying/deleting it)
+npx knip --trace-file resources/js/components/MyComponent.vue
+npx knip --trace-file resources/js/composables/useMyComposable.ts
+
+# Find all unused files, exports, and dependencies
+npx knip
+```
+
+**Configuration:** `knip.config.ts` (includes custom Vue compiler fix for `<script setup>` tracing).
+
 ### Test Queue System
 
 `test:php` uses a queue to prevent concurrent runs from bottlenecking each other. If tests are already running, your run **waits automatically** — no action needed.

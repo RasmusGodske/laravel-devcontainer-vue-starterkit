@@ -24,6 +24,8 @@ export default defineConfigWithVueTs(
             // TypeScript rules
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+
+            'vue/block-order': ['warn', { order: ['script', 'template', 'style'] }], // Enforce script-first order per conventions
             
             // General code quality rules
             'no-console': 'warn',

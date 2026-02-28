@@ -12,6 +12,7 @@ These rules are **automatically loaded** when working on Vue/TypeScript files.
 |-----------|------------|--------|
 | `vue-conventions.md` | `resources/js/**/*.{vue,ts,tsx}` | defineModel(), Composition API, TypeScript patterns |
 | `component-composition.md` | `resources/js/Components/**/*.vue` | Component size limits, single responsibility, when to split |
+| `check-dependencies-before-modifying.md` | `resources/js/**/*.{vue,ts,tsx,js}` | Run `npx knip --trace-file` before modifying files to check impact |
 
 **See also:** `../principles/` for cross-cutting rules that apply to both backend and frontend.
 
