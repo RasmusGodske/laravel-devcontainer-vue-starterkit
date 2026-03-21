@@ -158,21 +158,31 @@
         {
             "label": "Setup: Configure Ports",
             "type": "shell",
-            "command": "./devtools/setup/configure-ports.sh run",
+            "command": "./devtools/setup/configure-ports.sh run --attach",
             "icon": {
                 "color": "terminal.ansiYellow",
                 "id": "globe"
             },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "=== setup-access ===|Configure Access",
+                    "endsPattern": "Done\\.|\\[SUCCESS\\]"
+                }
+            },
             "presentation": {
                 "focus": true,
-                "panel": "shared",
+                "panel": "dedicated",
                 "reveal": "always",
-                "showReuseMessage": false
+                "close": true
             },
             "options": {
                 "cwd": ""
-            },
-            "problemMatcher": []
+            }
         },
         {
             "label": "service:database",
