@@ -9,14 +9,14 @@ declare namespace App.Data.Inertia {
     export type InertiaSharedData = {
         name: string;
         quote: App.Data.Inertia.InertiaQuoteData;
-        auth: App.Data.Inertia.InertiaAuthData;
         ziggy: App.Data.Inertia.InertiaZiggyData;
         sidebarOpen: boolean;
         errors: object;
+        auth: App.Data.Inertia.InertiaAuthData | null;
     };
     export type InertiaZiggyData = {
         url: string;
-        port: number;
+        port: number | null;
         defaults: Array<any>;
         routes: Array<any>;
         location: string;
