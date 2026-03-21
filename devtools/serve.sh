@@ -1,6 +1,6 @@
 #!/bin/bash
 # Wrapper script for php artisan serve that handles restarts gracefully
-# Reads APP_PORT from .env (set by devtools/setup/configure-access.sh)
+# Reads APP_PORT from .env (set by devtools/setup/configure-ports.sh)
 
 cd /home/vscode/project
 

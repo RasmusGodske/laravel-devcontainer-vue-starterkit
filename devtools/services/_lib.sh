@@ -43,7 +43,35 @@ session_healthy() {
     return 1
 }
 
-# Start the service in a tmux session
+# Wait for the service's ready pattern to appear in the tmux pane output.
+# Prints captured output (so VS Code task problemMatcher can detect it) and returns.
+_wait_for_ready() {
+    local timeout=30
+    local elapsed=0
+    local output=""
+
+    while [[ $elapsed -lt $timeout ]]; do
+        sleep 1
+        output=$(tmux capture-pane -t "$SERVICE_NAME" -p 2>/dev/null || echo "")
+
+        if [[ -n "$READY_PATTERN" ]] && echo "$output" | grep -qF "$READY_PATTERN"; then
+            echo "$output"
+            echo "[$SERVICE_NAME] Ready"
+            return 0
+        fi
+
+        ((elapsed++)) || true
+    done
+
+    # Timeout — still print output and succeed (service may still be starting)
+    echo "$output"
+    echo "[$SERVICE_NAME] Started (timeout waiting for ready pattern)"
+    return 0
+}
+
+# Start the service in a tmux session.
+# The session is created with a persistent shell so that restart can send a new
+# command without killing the session — keeping any attached VS Code terminal alive.
 # Usage: do_start [--attach]
 do_start() {
     local attach=false
@@ -51,53 +79,24 @@ do_start() {
         attach=true
     fi
 
-    local was_running=false
     if session_healthy; then
-        was_running=true
         echo "[$SERVICE_NAME] Already running"
-        # Output the ready pattern so VS Code task completes
-        if [[ -n "$READY_PATTERN" ]]; then
-            echo "$READY_PATTERN"
-        fi
+        # Output ready pattern so VS Code task problemMatcher completes
+        [[ -n "$READY_PATTERN" ]] && echo "$READY_PATTERN"
+    elif session_exists; then
+        # Session alive (VS Code terminal still attached) but service died — restart inside it
+        echo "[$SERVICE_NAME] Restarting inside existing session..."
+        tmux send-keys -t "$SERVICE_NAME" "$SERVICE_CMD" Enter
+        _wait_for_ready
     else
-        # Kill zombie session if exists
-        if session_exists; then
-            echo "[$SERVICE_NAME] Cleaning up stale session..."
-            tmux kill-session -t "$SERVICE_NAME" 2>/dev/null || true
-        fi
-
         echo "[$SERVICE_NAME] Starting..."
-
-        # Start the service in a new tmux session
-        tmux new-session -d -s "$SERVICE_NAME" -c "$PROJECT_ROOT" "$SERVICE_CMD"
-
-        # Wait for ready pattern (or timeout)
-        local timeout=30
-        local elapsed=0
-        local output=""
-
-        while [[ $elapsed -lt $timeout ]]; do
-            sleep 1
-            output=$(tmux capture-pane -t "$SERVICE_NAME" -p 2>/dev/null || echo "")
-
-            if [[ -n "$READY_PATTERN" ]] && echo "$output" | grep -qF "$READY_PATTERN"; then
-                # Print the captured output for VS Code pattern matching
-                echo "$output"
-                echo "[$SERVICE_NAME] Ready"
-                break
-            fi
-
-            ((elapsed++)) || true
-        done
-
-        if [[ $elapsed -ge $timeout ]]; then
-            # Timeout - still print output and succeed (service may still be starting)
-            echo "$output"
-            echo "[$SERVICE_NAME] Started (timeout waiting for ready pattern)"
-        fi
+        # Create session with a persistent shell (no embedded command) so the session
+        # survives restarts and VS Code terminals stay connected
+        tmux new-session -d -s "$SERVICE_NAME" -c "$PROJECT_ROOT"
+        tmux send-keys -t "$SERVICE_NAME" "$SERVICE_CMD" Enter
+        _wait_for_ready
     fi
 
-    # Attach if requested
     if [[ "$attach" == true ]]; then
         sleep 0.5
         tmux attach-session -t "$SERVICE_NAME"
@@ -106,7 +105,7 @@ do_start() {
     return 0
 }
 
-# Stop the service
+# Stop the service and kill the tmux session entirely
 do_stop() {
     if ! session_exists; then
         echo "[$SERVICE_NAME] Not running"
@@ -114,28 +113,37 @@ do_stop() {
     fi
 
     echo "[$SERVICE_NAME] Stopping..."
-
-    # Send SIGTERM to the process
     tmux send-keys -t "$SERVICE_NAME" C-c
     sleep 1
-
-    # Kill the session
     tmux kill-session -t "$SERVICE_NAME" 2>/dev/null || true
-
     echo "[$SERVICE_NAME] Stopped"
 }
 
-# Restart the service
+# Restart the service.
+# Keeps the tmux session alive so any attached VS Code terminal stays connected —
+# only the service process inside the session is interrupted and restarted.
 # Usage: do_restart [--attach]
 do_restart() {
     local attach=""
-    if [[ "$1" == "--attach" ]]; then
-        attach="--attach"
+    [[ "$1" == "--attach" ]] && attach="--attach"
+
+    if ! session_exists; then
+        do_start $attach
+        return
     fi
 
-    do_stop
+    echo "[$SERVICE_NAME] Restarting..."
+    # Stop the process inside the session but leave the session itself running
+    tmux send-keys -t "$SERVICE_NAME" C-c
     sleep 1
-    do_start $attach
+    tmux send-keys -t "$SERVICE_NAME" "$SERVICE_CMD" Enter
+    _wait_for_ready
+    echo "[$SERVICE_NAME] Restarted"
+
+    if [[ -n "$attach" ]]; then
+        sleep 0.5
+        tmux attach-session -t "$SERVICE_NAME"
+    fi
 }
 
 # Check status

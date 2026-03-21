@@ -6,14 +6,48 @@ Scripts for common development tasks with integrated quality tracking.
 
 These commands are available as symlinks in the devcontainer:
 
+**Testing & Linting:**
+
 | Command | Script | Description |
 |---------|--------|-------------|
 | `test:php` | `test/php.sh` | Run PHPUnit tests |
 | `lint:php` | `lint/php.sh` | Run PHPStan static analysis |
 | `lint:js` | `lint/js.sh` | Run ESLint |
 | `lint:ts` | `lint/ts.sh` | Run TypeScript type checking |
+| `lint:deadcode` | `lint/deadcode.sh` | Run Knip dead code detection |
 | `review:code` | `review/code.sh` | AI code review via reldo |
 | `qa` | `qa.sh` | Run all quality checks |
+
+**Sync Tools:**
+
+| Command | Script | Description |
+|---------|--------|-------------|
+| `sync:models` | `sync/models.sh` | Regenerate model @property annotations |
+| `sync:types` | `sync/types.sh` | Regenerate TypeScript types from PHP |
+| `sync:routes` | `sync/routes.sh` | Regenerate Ziggy route types |
+| `sync:all` | `sync/all.sh` | Run all sync scripts |
+
+**Git Helpers (AI-assisted):**
+
+| Command | Script | Description |
+|---------|--------|-------------|
+| `git:branch` | `git/branch.sh` | Create branch with type/slug naming |
+| `git:commit` | `git/commit.sh` | Commit with AI-generated message |
+| `git:pr` | `git/pr.sh` | Create PR with AI-generated description |
+
+**Services & Orchestration:**
+
+| Command | Script | Description |
+|---------|--------|-------------|
+| `dev:start` | `dev/start.sh` | Start full environment |
+| `dev:stop` | `dev/stop.sh` | Stop services |
+| `dev:status` | `dev/status.sh` | Show environment status |
+| `service:serve` | `services/serve.sh` | Laravel dev server |
+| `service:vite` | `services/vite.sh` | Vite HMR server |
+| `service:database` | `services/database.sh` | PostgreSQL via Docker |
+| `service:cache` | `services/cache.sh` | Redis via Docker |
+| `service:desktop` | `services/desktop.sh` | Headed browser (noVNC) |
+| `service:logs` | `services/logs.sh` | Laravel Pail log tailing |
 
 ## Directory Structure
 
@@ -25,7 +59,7 @@ devtools/
 │   ├── npm.sh         # Install npm dependencies
 │   ├── app-key.sh     # Generate APP_KEY
 │   ├── migrated.sh    # Run migrations
-│   └── urls.sh        # Configure URLs
+│   └── configure-ports.sh  # Configure access & ports
 ├── lib/
 │   └── queue.sh       # Shared flock-based test queue library
 ├── test/
@@ -33,11 +67,30 @@ devtools/
 ├── lint/
 │   ├── php.sh         # PHPStan + lumby + tarnished
 │   ├── js.sh          # ESLint + lumby + tarnished
-│   └── ts.sh          # vue-tsc + lumby
+│   ├── ts.sh          # vue-tsc + lumby
+│   └── deadcode.sh    # Knip dead code detection + tarnished
+├── git/                # AI-assisted git helpers
+│   ├── branch.sh      # Create branches with type/slug naming
+│   ├── commit.sh      # Commit with AI-generated messages
+│   └── pr.sh          # Create PRs with AI-generated descriptions
+├── sync/               # Generated artifact sync
+│   ├── all.sh         # Run all sync scripts
+│   ├── models.sh      # ide-helper:models (model annotations)
+│   ├── types.sh       # typescript:transform (PHP → TS types)
+│   └── routes.sh      # ziggy:generate (route types)
+├── services/           # tmux-managed long-running services
+│   ├── _lib.sh        # Shared service management library
+│   ├── _env-watch.sh  # Auto-restart on .env changes
+│   ├── serve.sh       # Laravel dev server
+│   ├── vite.sh        # Vite HMR server
+│   ├── database.sh    # PostgreSQL via Docker Compose
+│   ├── cache.sh       # Redis via Docker Compose
+│   ├── desktop.sh     # Xvfb + noVNC for headed browsers
+│   └── logs.sh        # Laravel Pail log tailing
 ├── review/
 │   └── code.sh        # reldo wrapper
 ├── qa.sh              # Run all quality checks
-└── serve.sh           # Laravel server wrapper
+└── serve.sh           # Legacy server wrapper
 ```
 
 ## How It Works
@@ -132,11 +185,21 @@ test:php tests/Feature/Auth/
 # Check what needs running
 tarnished status
 
+# Sync generated artifacts
+sync:all
+
 # Get AI code review
 review:code "Review authentication changes"
 
 # Run all checks
 qa
+qa --compact                # Compact output for AI agents
+qa --skip-deadcode          # Skip dead code detection
+
+# Git helpers
+git:branch feat "add login" # Create feat/add-login branch
+git:commit                   # AI-generated commit message
+git:pr                       # AI-generated PR description
 ```
 
 ## Disabling AI Diagnosis

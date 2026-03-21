@@ -6,34 +6,40 @@ Composer scripts streamline common development tasks by bundling multiple comman
 
 ## Usage
 
-Run the development setup script whenever you:
-- Add new models or modify existing ones
-- Update routes that need TypeScript definitions
-- Want to refresh IDE autocompletion files
-- Set up the project for a new developer
+### Individual Sync Commands
+
+Sync generated artifacts individually when you change specific parts of the codebase:
+
+```bash
+sync:models    # Regenerate model @property annotations (ide-helper)
+sync:types     # Regenerate TypeScript types from PHP enums/Data classes
+sync:routes    # Regenerate Ziggy route type definitions
+sync:all       # Run all three sync scripts
+```
+
+Each command integrates with tarnished -- after a successful sync, the checkpoint is saved so you know the artifacts are up to date.
+
+### When to Run
+
+| When you change... | Run |
+|---------------------|-----|
+| Database migrations or model relationships | `sync:models` |
+| PHP enums or Data classes with `#[Typescript]` | `sync:types` |
+| Route definitions | `sync:routes` |
+| Multiple of the above | `sync:all` |
+
+### Legacy: Composer Script
+
+The `composer dev-setup` command still works and runs all sync scripts plus Pint formatting:
 
 ```bash
 composer dev-setup
 ```
 
-This single command:
-- Generates TypeScript types from PHP classes
-- Creates IDE helper files for autocompletion
-- Generates Ziggy route types
-- Formats any generated code with Pint
-
 ## Configuration
-
-### Key Files
 
 | File | Purpose |
 |------|---------|
-| `composer.json` | Defines the `dev-setup` script under the `scripts` section |
-
-### Customization
-
-To modify what the `dev-setup` script does, edit the `scripts.dev-setup` array in `composer.json`. Each entry is a command that runs in sequence.
-
-The script runs `pint --dirty` at the end because some generators (like Ziggy) produce unformatted code that needs cleanup.
-
-To add your own workflow scripts, add new entries to the `scripts` section following the same pattern.
+| `devtools/sync/models.sh` | ide-helper:models -W |
+| `devtools/sync/types.sh` | typescript:transform --format |
+| `devtools/sync/routes.sh` | ziggy:generate --types-only |

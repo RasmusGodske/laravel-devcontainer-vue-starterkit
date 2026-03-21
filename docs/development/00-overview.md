@@ -16,7 +16,7 @@ This documentation covers the development environment features included in this 
 
 1. Open the project in VS Code
 2. Click "Reopen in Container" when prompted
-3. Run "Dev: Start" task (or `composer dev`)
+3. Run "Dev: Start" task (or `dev:start`)
 4. Visit http://localhost:8080
 
 ## Documentation Index
@@ -48,12 +48,13 @@ This documentation covers the development environment features included in this 
 - [Devtools](14-devtools.md) - Development commands (test:php, lint:php, etc.)
 - [Quality Tools](15-quality-tools.md) - tarnished, lumby, reldo integration
 - [Claude Code Configuration](16-claude-code-configuration.md) - Rules, agents, and plugins
+- [Dependency Analysis](17-knip-dependency-analysis.md) - Dead code detection with Knip
 
 ## Common Commands
 
 ```bash
 # Start development
-composer dev
+dev:start
 
 # Run tests
 test:php
@@ -62,6 +63,16 @@ test:php --filter=UserTest
 # Lint code
 lint:php                    # PHPStan
 lint:js                     # ESLint
+lint:deadcode               # Dead code (Knip)
+
+# Sync generated artifacts
+sync:all                    # Sync models, types, routes
+sync:models                 # Sync model annotations only
+
+# Git helpers (AI-assisted)
+git:commit                  # Generate commit message
+git:branch feat "my feature" # Create typed branch
+git:pr                      # Create PR with generated description
 
 # Check what needs running
 tarnished status
@@ -71,6 +82,7 @@ review:code "Review my changes"
 
 # Run all quality checks
 qa
+qa --compact                # Compact output for AI agents
 ```
 
 ## Why No Laravel Sail?

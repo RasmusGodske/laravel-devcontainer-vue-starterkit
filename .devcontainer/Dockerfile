@@ -62,32 +62,36 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
 
 # Install PostgreSQL client, Python, and tmux
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get install -y postgresql-client python3-pip tmux
+    && apt-get install -y postgresql-client sqlite3 python3-pip tmux jq
 
 # Install Node.js and npm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
-# Install Playwright browser dependencies
-# These are required for running Chromium, Firefox, and WebKit browsers
+# Install Playwright Chromium browser for both vscode (local dev) and root (CI).
+ARG PLAYWRIGHT_VERSION=1.52.0
+USER vscode
+RUN npx playwright@${PLAYWRIGHT_VERSION} install chromium
+USER root
+RUN npx playwright@${PLAYWRIGHT_VERSION} install chromium
+
+# Install Playwright system dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y \
-    libnss3 \
-    libnspr4 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libxkbcommon0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libasound2t64 \
-    libpango-1.0-0 \
-    libcairo2 \
-    libatspi2.0-0
+        libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+        libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+        libgbm1 libasound2t64 libpango-1.0-0 libcairo2 libatspi2.0-0 \
+        libwayland-client0 libxext6 libx11-xcb1 xvfb fonts-freefont-ttf \
+        fonts-noto-color-emoji libvulkan1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install desktop components for headed browser automation via noVNC
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get install -y x11vnc novnc fluxbox \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html
 
 # Install Claude Code CLI and uv for vscode user
 USER vscode
@@ -97,6 +101,8 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN /home/vscode/.local/bin/uv tool install lumby
 RUN /home/vscode/.local/bin/uv tool install reldo
 RUN /home/vscode/.local/bin/uv tool install tarnished
+# Install mcp-proxy (bridges Claude Code's stdio MCP to Serena's SSE server)
+RUN /home/vscode/.local/bin/uv tool install mcp-proxy
 USER root
 RUN echo 'export PATH="$PATH:/home/vscode/.claude/local/bin"' >> /home/vscode/.zshrc
 RUN echo 'export PATH="$PATH:/home/vscode/.local/bin"' >> /home/vscode/.zshrc
@@ -128,15 +134,28 @@ RUN ln -s /home/vscode/project/devtools/test/php.sh /usr/local/bin/test:php \
     && ln -s /home/vscode/project/devtools/lint/php.sh /usr/local/bin/lint:php \
     && ln -s /home/vscode/project/devtools/lint/js.sh /usr/local/bin/lint:js \
     && ln -s /home/vscode/project/devtools/lint/ts.sh /usr/local/bin/lint:ts \
+    && ln -s /home/vscode/project/devtools/lint/deadcode.sh /usr/local/bin/lint:deadcode \
     && ln -s /home/vscode/project/devtools/review/code.sh /usr/local/bin/review:code \
     && ln -s /home/vscode/project/devtools/qa.sh /usr/local/bin/qa
+
+# Create symlinks for git helpers
+RUN ln -s /home/vscode/project/devtools/git/commit.sh /usr/local/bin/git:commit \
+    && ln -s /home/vscode/project/devtools/git/branch.sh /usr/local/bin/git:branch \
+    && ln -s /home/vscode/project/devtools/git/pr.sh /usr/local/bin/git:pr
+
+# Create symlinks for sync commands
+RUN ln -s /home/vscode/project/devtools/sync/models.sh /usr/local/bin/sync:models \
+    && ln -s /home/vscode/project/devtools/sync/types.sh /usr/local/bin/sync:types \
+    && ln -s /home/vscode/project/devtools/sync/routes.sh /usr/local/bin/sync:routes \
+    && ln -s /home/vscode/project/devtools/sync/all.sh /usr/local/bin/sync:all
 
 # Create symlinks for service commands
 RUN ln -s /home/vscode/project/devtools/services/database.sh /usr/local/bin/service:database \
     && ln -s /home/vscode/project/devtools/services/cache.sh /usr/local/bin/service:cache \
     && ln -s /home/vscode/project/devtools/services/serve.sh /usr/local/bin/service:serve \
     && ln -s /home/vscode/project/devtools/services/vite.sh /usr/local/bin/service:vite \
-    && ln -s /home/vscode/project/devtools/services/logs.sh /usr/local/bin/service:logs
+    && ln -s /home/vscode/project/devtools/services/logs.sh /usr/local/bin/service:logs \
+    && ln -s /home/vscode/project/devtools/services/desktop.sh /usr/local/bin/service:desktop
 
 # Create symlinks for dev orchestration commands
 RUN ln -s /home/vscode/project/devtools/dev/start.sh /usr/local/bin/dev:start \

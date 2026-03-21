@@ -16,6 +16,7 @@
 # What it changes in .env:
 #   APP_PORT               - Laravel serve port
 #   VITE_PORT              - Vite dev server port
+#   NOVNC_PORT             - noVNC port for headed browser
 #   APP_URL                - Base URL for Laravel route generation
 #   ASSET_URL              - Where Vite-built assets are served from (Codespaces)
 #   VITE_DEV_SERVER_URL    - Vite dev server origin (Codespaces)
@@ -28,10 +29,12 @@
 #   so subsequent runs auto-apply after 5 seconds.
 #
 # Usage:
-#   ./configure-access.sh              Run directly
-#   ./configure-access.sh status       Show current config from .env
-# ---------------------------------------------------------------------------
+#   ./configure-ports.sh              Run directly
+#   ./configure-ports.sh run          Run in tmux session
+#   ./configure-ports.sh run --attach Run in tmux and attach to see output
+#   ./configure-ports.sh status       Show current config from .env
 
+SETUP_NAME="setup-access"
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
@@ -40,10 +43,7 @@ cd /home/vscode/project
 # Config file (gitignored), sits next to this script
 CONFIG_FILE="$SCRIPT_DIR/.access.json"
 
-# ---------------------------------------------------------------------------
 # Terminal formatting
-# ---------------------------------------------------------------------------
-
 BOLD="\033[1m"
 DIM="\033[2m"
 GREEN="\033[32m"
@@ -51,13 +51,9 @@ YELLOW="\033[33m"
 CYAN="\033[36m"
 RESET="\033[0m"
 
-# Print a colored arrow indicator
 arrow() { printf "${CYAN}>${RESET} "; }
 
-# ---------------------------------------------------------------------------
 # Port presets
-# ---------------------------------------------------------------------------
-
 PRESET_COUNT=3
 
 preset_app_port() {
@@ -72,14 +68,18 @@ preset_vite_port() {
     esac
 }
 
-# Human-friendly names for presets
-preset_name() {
+preset_novnc_port() {
     case "$1" in
-        1) echo "Default" ;; 2) echo "Instance 2" ;; 3) echo "Instance 3" ;; *) echo "Unknown" ;;
+        1) echo 6080 ;; 2) echo 6081 ;; 3) echo 6082 ;; *) echo 6080 ;;
     esac
 }
 
-# Human-friendly names for access modes
+preset_name() {
+    case "$1" in
+        1) echo "Default" ;; 2) echo "Preset 2" ;; 3) echo "Preset 3" ;; *) echo "Unknown" ;;
+    esac
+}
+
 access_name() {
     case "$1" in
         codespaces-browser) echo "Codespaces (Browser)" ;;
@@ -88,15 +88,13 @@ access_name() {
     esac
 }
 
-# ---------------------------------------------------------------------------
 # .env helpers
-# ---------------------------------------------------------------------------
-
 update_env() {
     local key="$1" value="$2"
     if grep -q "^${key}=" .env; then
         sed -i "s|^${key}=.*|${key}=${value}|" .env
     else
+        [[ -n "$(tail -c1 .env)" ]] && echo "" >> .env
         echo "${key}=${value}" >> .env
     fi
 }
@@ -106,19 +104,17 @@ remove_env() {
     sed -i "/^${key}=/d" .env
 }
 
-# ---------------------------------------------------------------------------
-# Config persistence (JSON)
-# ---------------------------------------------------------------------------
-
+# Config persistence
 save_config() {
-    local access="$1" preset="$2" app_port="$3" vite_port="$4"
+    local access="$1" preset="$2" app_port="$3" vite_port="$4" novnc_port="$5"
     cat > "$CONFIG_FILE" <<ENDJSON
 {
   "access": "$access",
   "preset": $preset,
   "ports": {
     "app": $app_port,
-    "vite": $vite_port
+    "vite": $vite_port,
+    "novnc": $novnc_port
   }
 }
 ENDJSON
@@ -128,7 +124,6 @@ load_config() {
     [[ -f "$CONFIG_FILE" ]] && cat "$CONFIG_FILE"
 }
 
-# Read a field from the JSON config (simple sed-based, no jq dependency)
 config_value() {
     local key="$1" config result
     config=$(load_config)
@@ -140,19 +135,17 @@ config_value() {
     echo "$result"
 }
 
-# ---------------------------------------------------------------------------
 # Configuration apply
-# ---------------------------------------------------------------------------
-
 apply_ports() {
-    local app_port="$1" vite_port="$2"
+    local app_port="$1" vite_port="$2" novnc_port="$3"
     update_env "APP_PORT" "$app_port"
     update_env "VITE_PORT" "$vite_port"
+    update_env "NOVNC_PORT" "$novnc_port"
 }
 
 configure_localhost() {
-    local app_port="$1" vite_port="$2"
-    apply_ports "$app_port" "$vite_port"
+    local app_port="$1" vite_port="$2" novnc_port="$3"
+    apply_ports "$app_port" "$vite_port" "$novnc_port"
     update_env "APP_URL" "http://localhost"
     remove_env "ASSET_URL"
     remove_env "VITE_DEV_SERVER_URL"
@@ -162,8 +155,8 @@ configure_localhost() {
 }
 
 configure_codespaces_browser() {
-    local app_port="$1" vite_port="$2"
-    apply_ports "$app_port" "$vite_port"
+    local app_port="$1" vite_port="$2" novnc_port="$3"
+    apply_ports "$app_port" "$vite_port" "$novnc_port"
     local codespace_url="https://${CODESPACE_NAME}-${app_port}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
     local vite_host="${CODESPACE_NAME}-${vite_port}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
     local vite_dev_server_url="https://${vite_host}"
@@ -176,32 +169,25 @@ configure_codespaces_browser() {
 }
 
 apply_config() {
-    local access_mode="$1" app_port="$2" vite_port="$3"
+    local access_mode="$1" app_port="$2" vite_port="$3" novnc_port="$4"
     if [[ "$access_mode" == "codespaces-browser" ]]; then
-        configure_codespaces_browser "$app_port" "$vite_port"
+        configure_codespaces_browser "$app_port" "$vite_port" "$novnc_port"
     else
-        configure_localhost "$app_port" "$vite_port"
+        configure_localhost "$app_port" "$vite_port" "$novnc_port"
     fi
 }
 
-# ---------------------------------------------------------------------------
-# Display helpers
-# ---------------------------------------------------------------------------
-
-# Print the final summary after applying config
 print_summary() {
-    local access_mode="$1" preset="$2" app_port="$3" vite_port="$4"
-
+    local access_mode="$1" preset="$2" app_port="$3" vite_port="$4" novnc_port="$5"
     echo ""
     printf "  ${BOLD}Access${RESET}  $(access_name "$access_mode")\n"
     printf "  ${BOLD}Serve${RESET}   http://localhost:${app_port}\n"
     printf "  ${BOLD}Vite${RESET}    http://localhost:${vite_port}\n"
+    printf "  ${BOLD}noVNC${RESET}   http://localhost:${novnc_port}\n"
     echo ""
     printf "  ${GREEN}Done.${RESET} Settings written to .env\n"
 }
 
-# Print a menu option, highlighting the selected one
-# Usage: print_option <number> <label> <detail> [selected]
 print_option() {
     local num="$1" label="$2" detail="$3" selected="${4:-}"
     if [[ "$selected" == "selected" ]]; then
@@ -211,9 +197,26 @@ print_option() {
     fi
 }
 
-# ---------------------------------------------------------------------------
-# Main setup logic
-# ---------------------------------------------------------------------------
+print_preset_table() {
+    local selected="${1:-1}" show_label="${2:-false}"
+    printf "  ${DIM}%-5s%-14s%-12s%-10s%-6s${RESET}\n" "" "Preset" "Laravel" "Vite" "noVNC"
+    printf "  ${DIM}%s${RESET}\n" "─────────────────────────────────────────"
+    local i
+    for i in $(seq 1 $PRESET_COUNT); do
+        local p_app p_vite p_novnc p_name
+        p_app=$(preset_app_port "$i")
+        p_vite=$(preset_vite_port "$i")
+        p_novnc=$(preset_novnc_port "$i")
+        p_name=$(preset_name "$i")
+        if [[ "$i" -eq "$selected" ]]; then
+            local label=""
+            [[ "$show_label" == "true" ]] && label=" ${GREEN}${BOLD}(selected)${RESET}"
+            printf "  ${GREEN}${BOLD}%s)${RESET} ${BOLD}%-14s${RESET}${DIM}%-12s%-10s%-6s${RESET}%b\n" "$i" "$p_name" "$p_app" "$p_vite" "$p_novnc" "$label"
+        else
+            printf "  ${BOLD}%s)${RESET} %-14s${DIM}%-12s%-10s%-6s${RESET}\n" "$i" "$p_name" "$p_app" "$p_vite" "$p_novnc"
+        fi
+    done
+}
 
 do_setup() {
     echo ""
@@ -228,47 +231,52 @@ do_setup() {
     local is_codespaces=false
     [[ "$CODESPACES" == "true" ]] && is_codespaces=true
 
-    # --- Check for saved config ---
     local saved_config
     saved_config=$(load_config)
 
     if [[ -n "$saved_config" ]]; then
-        local saved_access saved_preset saved_app_port saved_vite_port
+        local saved_access saved_preset saved_app_port saved_vite_port saved_novnc_port
         saved_access=$(config_value "access")
         saved_preset=$(config_value "preset")
         saved_app_port=$(preset_app_port "$saved_preset")
         saved_vite_port=$(preset_vite_port "$saved_preset")
+        saved_novnc_port=$(preset_novnc_port "$saved_preset")
 
         echo ""
-        printf "  ${DIM}Saved config:${RESET} $(access_name "$saved_access"), $(preset_name "$saved_preset") (ports ${saved_app_port}/${saved_vite_port})\n"
+        print_preset_table "$saved_preset" "true"
         echo ""
 
-        # Countdown with live update
-        local remaining=5
+        local remaining=5 key_pressed=""
         while [[ $remaining -gt 0 ]]; do
-            printf "\r  Applying in ${BOLD}%d${RESET}s... ${DIM}(press any key to change)${RESET}  " "$remaining"
-            if read -t 1 -n 1 -s; then
-                printf "\r%-60s\r" ""  # Clear the countdown line
-                echo ""
+            printf "\r  Applying in ${BOLD}%d${RESET}s... ${DIM}(press enter to confirm, number to change)${RESET}  " "$remaining"
+            if read -t 1 -n 1 -s key_pressed; then
+                printf "\r%-60s\r" ""
                 break
             fi
             ((remaining--))
         done
 
-        if [[ $remaining -eq 0 ]]; then
-            printf "\r%-60s\r" ""  # Clear the countdown line
-            apply_config "$saved_access" "$saved_app_port" "$saved_vite_port"
-            save_config "$saved_access" "$saved_preset" "$saved_app_port" "$saved_vite_port"
-            print_summary "$saved_access" "$saved_preset" "$saved_app_port" "$saved_vite_port"
+        if [[ $remaining -eq 0 ]] || [[ -z "$key_pressed" || "$key_pressed" == $'\n' || "$key_pressed" == $'\r' ]]; then
+            printf "\r%-60s\r" ""
+            apply_config "$saved_access" "$saved_app_port" "$saved_vite_port" "$saved_novnc_port"
+            save_config "$saved_access" "$saved_preset" "$saved_app_port" "$saved_vite_port" "$saved_novnc_port"
+            print_summary "$saved_access" "$saved_preset" "$saved_app_port" "$saved_vite_port" "$saved_novnc_port"
+            return 0
+        elif [[ "$key_pressed" =~ ^[1-3]$ ]]; then
+            local new_app_port new_vite_port new_novnc_port
+            new_app_port=$(preset_app_port "$key_pressed")
+            new_vite_port=$(preset_vite_port "$key_pressed")
+            new_novnc_port=$(preset_novnc_port "$key_pressed")
+            apply_config "$saved_access" "$new_app_port" "$new_vite_port" "$new_novnc_port"
+            save_config "$saved_access" "$key_pressed" "$new_app_port" "$new_vite_port" "$new_novnc_port"
+            print_summary "$saved_access" "$key_pressed" "$new_app_port" "$new_vite_port" "$new_novnc_port"
             return 0
         fi
+        echo ""
     fi
-
-    # --- First run or reconfiguring ---
 
     local access_mode="localhost"
 
-    # Step 1: Access mode (Codespaces only)
     if [[ "$is_codespaces" == true ]]; then
         echo ""
         printf "  ${DIM}GitHub Codespaces detected${RESET}\n"
@@ -297,24 +305,11 @@ do_setup() {
         printf "  ${DIM}Local devcontainer detected${RESET}\n"
     fi
 
-    # Step 2: Port preset
     echo ""
-    printf "  ${BOLD}Which instance is this?${RESET}\n"
+    printf "  ${BOLD}Which port preset?${RESET}\n"
     printf "  ${DIM}Pick different ports per devcontainer to avoid conflicts.${RESET}\n"
     echo ""
-
-    local i
-    for i in $(seq 1 $PRESET_COUNT); do
-        local p_app p_vite p_name
-        p_app=$(preset_app_port "$i")
-        p_vite=$(preset_vite_port "$i")
-        p_name=$(preset_name "$i")
-        if [[ "$i" -eq 1 ]]; then
-            print_option "$i" "$p_name" "ports ${p_app} / ${p_vite}" "selected"
-        else
-            print_option "$i" "$p_name" "ports ${p_app} / ${p_vite}"
-        fi
-    done
+    print_preset_table 1
     echo ""
 
     local preset_choice
@@ -332,19 +327,15 @@ do_setup() {
             ;;
     esac
 
-    local app_port vite_port
+    local app_port vite_port novnc_port
     app_port=$(preset_app_port "$preset_choice")
     vite_port=$(preset_vite_port "$preset_choice")
+    novnc_port=$(preset_novnc_port "$preset_choice")
 
-    # Apply and save
-    apply_config "$access_mode" "$app_port" "$vite_port"
-    save_config "$access_mode" "$preset_choice" "$app_port" "$vite_port"
-    print_summary "$access_mode" "$preset_choice" "$app_port" "$vite_port"
+    apply_config "$access_mode" "$app_port" "$vite_port" "$novnc_port"
+    save_config "$access_mode" "$preset_choice" "$app_port" "$vite_port" "$novnc_port"
+    print_summary "$access_mode" "$preset_choice" "$app_port" "$vite_port" "$novnc_port"
 }
-
-# ---------------------------------------------------------------------------
-# Status check
-# ---------------------------------------------------------------------------
 
 do_status() {
     if [[ ! -f .env ]]; then
@@ -373,6 +364,7 @@ source "$SCRIPT_DIR/_lib.sh"
 case "${1:-}" in
     run)
         shift
+        SETUP_CMD="do_setup"
         run_setup_in_tmux "$@"
         ;;
     status)

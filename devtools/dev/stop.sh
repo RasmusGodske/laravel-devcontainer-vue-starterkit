@@ -16,6 +16,10 @@ fi
 echo "=== Stopping Development Environment ==="
 echo ""
 
+echo "Stopping desktop..."
+"$SERVICES_DIR/desktop.sh" stop
+
+echo ""
 echo "Stopping Vite..."
 "$SERVICES_DIR/vite.sh" stop
 

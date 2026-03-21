@@ -5,7 +5,8 @@
     "args": {
       "INSTALL_ZSH": "true",
       "USER_UID": "1000",
-      "USER_GID": "1000"
+      "USER_GID": "1000",
+      "PLAYWRIGHT_VERSION": "1.52.0"
     }
   },
   "mounts": [
@@ -16,19 +17,23 @@
   "workspaceFolder": "/home/vscode/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/project,type=bind,consistency=delegated",
   "runArgs": [
-    "--init"
+    "--init",
+    "--cpu-shares=512",
+    "--shm-size=2g"
   ],
-  "forwardPorts": [8080, 5173],
   "portsAttributes": {
-    "8080-8085": {
-      "label": "Laravel App",
-      "onAutoForward": "silent"
-    },
-    "5173-5178": {
-      "label": "Vite Hot Module Replacement",
-      "onAutoForward": "silent",
-      "visibility": "public"
-    }
+    "8080": { "label": "Laravel App", "onAutoForward": "silent" },
+    "8081": { "label": "Laravel App (Preset 2)", "onAutoForward": "silent" },
+    "8082": { "label": "Laravel App (Preset 3)", "onAutoForward": "silent" },
+    "5173": { "label": "Vite HMR", "onAutoForward": "silent", "visibility": "public" },
+    "5174": { "label": "Vite HMR (Preset 2)", "onAutoForward": "silent", "visibility": "public" },
+    "5175": { "label": "Vite HMR (Preset 3)", "onAutoForward": "silent", "visibility": "public" },
+    "6080": { "label": "noVNC", "onAutoForward": "silent" },
+    "6081": { "label": "noVNC (Preset 2)", "onAutoForward": "silent" },
+    "6082": { "label": "noVNC (Preset 3)", "onAutoForward": "silent" }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
   },
   "initializeCommand": "./.devcontainer/initializeCommand.sh",
   "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
@@ -51,12 +56,12 @@
   },
   "remoteUser": "vscode",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "dockerDashComposeVersion": "v2"
     }
   },
   "containerEnv": {
-    "COMPOSE_PROJECT_NAME": "${localWorkspaceFolderBasename}"
+    "COMPOSE_PROJECT_NAME": "${localWorkspaceFolderBasename}",
+    "CLAUDE_CODE_OAUTH_TOKEN": "${localEnv:CLAUDE_CODE_OAUTH_TOKEN}"
   }
 }

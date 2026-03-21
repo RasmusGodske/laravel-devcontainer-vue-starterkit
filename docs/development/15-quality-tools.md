@@ -19,12 +19,12 @@ Tracks which quality checks need re-running after you modify files.
 ```bash
 # Check what needs running
 tarnished status
-# Output: {"lint:php": "tarnished", "test:php": "clean", "lint:js": "clean"}
+# {"lint:php": "tarnished", "test:php": "clean", "lint:js": "clean", "lint:deadcode": "clean", "sync:models": "tarnished", "sync:types": "clean", "sync:routes": "clean"}
 
 # After running a check that passes, it saves a checkpoint automatically
 test:php
 tarnished status
-# Output: {"lint:php": "tarnished", "test:php": "clean", "lint:js": "clean"}
+# {"lint:php": "tarnished", "test:php": "clean", "lint:js": "clean", "lint:deadcode": "clean", "sync:models": "tarnished", "sync:types": "clean", "sync:routes": "clean"}
 ```
 
 **Statuses:**
@@ -65,8 +65,16 @@ review:code "Review app/Services/AuthService.php"
 | `lint:php` | Run PHPStan with tarnished tracking |
 | `lint:js` | Run ESLint with tarnished tracking |
 | `lint:ts` | Run TypeScript type checking |
+| `lint:deadcode` | Run Knip dead code detection with tarnished tracking |
 | `review:code` | Run AI code review via reldo |
 | `qa` | Run all quality checks |
+| `sync:models` | Sync model annotations with tarnished tracking |
+| `sync:types` | Sync TypeScript types with tarnished tracking |
+| `sync:routes` | Sync Ziggy route types with tarnished tracking |
+| `sync:all` | Run all sync scripts |
+| `git:commit` | AI-generated commit messages |
+| `git:branch` | Create branches with type/slug naming |
+| `git:pr` | AI-generated PR descriptions |
 
 All commands support `--no-lumby` to disable AI diagnosis.
 
@@ -120,28 +128,13 @@ The `.tarnished/config.json` file defines which files each profile tracks:
 ```json
 {
   "profiles": {
-    "lint:php": {
-      "patterns": [
-        "app/**/*.php",
-        "tests/**/*.php",
-        "config/**/*.php",
-        "database/**/*.php",
-        "routes/**/*.php"
-      ]
-    },
-    "lint:js": {
-      "patterns": [
-        "resources/js/**/*.vue",
-        "resources/js/**/*.ts",
-        "resources/js/**/*.tsx"
-      ]
-    },
-    "test:php": {
-      "patterns": [
-        "app/**/*.php",
-        "tests/**/*.php"
-      ]
-    }
+    "lint:php": { "patterns": ["app/**/*.php", "tests/**/*.php", "config/**/*.php", "database/**/*.php", "routes/**/*.php"] },
+    "lint:js": { "patterns": ["resources/js/**/*.vue", "resources/js/**/*.ts", "resources/js/**/*.tsx"] },
+    "test:php": { "patterns": ["app/**/*.php", "tests/**/*.php"] },
+    "lint:deadcode": { "patterns": ["resources/js/**/*.vue", "resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.js"] },
+    "sync:models": { "patterns": ["database/migrations/**/*.php", "app/Models/**/*.php"] },
+    "sync:types": { "patterns": ["app/Enums/**/*.php", "app/Data/**/*.php", "app/Models/**/*.php"] },
+    "sync:routes": { "patterns": ["routes/**/*.php"] }
   }
 }
 ```

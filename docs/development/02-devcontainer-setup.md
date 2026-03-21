@@ -15,9 +15,11 @@ The devcontainer comes pre-configured with:
 
 - **PHP 8.x** with extensions: pgsql, redis, bcmath, gd, mbstring, curl, xml, zip, intl, soap
 - **Composer** (latest)
-- **Node.js 20** with npm
+- **Node.js 22** with npm
 - **PostgreSQL client** (psql)
 - **Git** with enhanced zsh plugins
+- **noVNC, Xvfb, Fluxbox** for headed browser automation
+- **mcp-proxy** for MCP server integration
 - **Docker-in-Docker** for running additional containers
 
 ## Usage
@@ -86,11 +88,20 @@ Edit `.devcontainer/Dockerfile` and add to the `install-php-extensions` command.
 **Adding VS Code extensions:**
 Edit `.devcontainer/devcontainer.json` under `customizations.vscode.extensions`.
 
-**Changing the port:**
-Update in three places:
-1. `.env`: `APP_URL=http://localhost:YOUR_PORT`
-2. `.devcontainer/devcontainer.json`: `forwardPorts`
-3. Composer dev scripts in `composer.json`
+**Changing ports:**
+Run `configure-ports.sh` to switch between 3 port presets. This is handled automatically by "Dev: Start", or run manually:
+
+```bash
+devtools/setup/configure-ports.sh
+```
+
+Three presets avoid port conflicts when running multiple devcontainers:
+
+| Preset | Laravel | Vite | noVNC |
+|--------|---------|------|-------|
+| Default | 8080 | 5173 | 6080 |
+| Preset 2 | 8081 | 5174 | 6081 |
+| Preset 3 | 8082 | 5175 | 6082 |
 
 ## Troubleshooting
 

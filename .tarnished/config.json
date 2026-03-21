@@ -21,6 +21,32 @@
         "app/**/*.php",
         "tests/**/*.php"
       ]
+    },
+    "lint:deadcode": {
+      "patterns": [
+        "resources/js/**/*.vue",
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/**/*.js"
+      ]
+    },
+    "sync:models": {
+      "patterns": [
+        "database/migrations/**/*.php",
+        "app/Models/**/*.php"
+      ]
+    },
+    "sync:types": {
+      "patterns": [
+        "app/Enums/**/*.php",
+        "app/Data/**/*.php",
+        "app/Models/**/*.php"
+      ]
+    },
+    "sync:routes": {
+      "patterns": [
+        "routes/**/*.php"
+      ]
     }
   }
 }

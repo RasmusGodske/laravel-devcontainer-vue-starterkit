@@ -1,563 +1,585 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Dev: Start",
-      "dependsOn": [
-        "Setup: Ensure .env",
-        "Setup: Configure Access",
-        "Setup: Ensure Composer",
-        "Setup: Ensure APP_KEY",
-        "Setup: Ensure npm",
-        "service:database",
-        "service:cache",
-        "Setup: Ensure migrated",
-        "service:serve",
-        "service:vite",
-        "service:logs"
-      ],
-      "dependsOrder": "sequence",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "play"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Dev: Stop",
-      "type": "shell",
-      "command": "./devtools/services/vite.sh stop && ./devtools/services/serve.sh stop && ./devtools/services/cache.sh stop && ./devtools/services/database.sh stop",
-      "icon": {
-        "color": "terminal.ansiRed",
-        "id": "debug-stop"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Dev: Status",
-      "type": "shell",
-      "command": "./devtools/dev/status.sh",
-      "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "info"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Ensure .env",
-      "type": "shell",
-      "command": "./devtools/setup/env.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "file"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Ensure APP_KEY",
-      "type": "shell",
-      "command": "./devtools/setup/app-key.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "key"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Ensure Composer",
-      "type": "shell",
-      "command": "./devtools/setup/composer.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "package"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Ensure npm",
-      "type": "shell",
-      "command": "./devtools/setup/npm.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "package"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Ensure migrated",
-      "type": "shell",
-      "command": "./devtools/setup/migrated.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "database"
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "shared",
-        "reveal": "silent",
-        "showReuseMessage": false,
-        "close": true
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Setup: Configure Access",
-      "type": "shell",
-      "command": "./devtools/setup/configure-access.sh run",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "globe"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always",
-        "showReuseMessage": false
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "service:database",
-      "type": "shell",
-      "command": "./devtools/services/database.sh start --attach",
-      "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "database"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": ""
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Dev: Start",
+            "dependsOn": [
+                "Setup: Ensure .env",
+                "Setup: Configure Ports",
+                "Setup: Ensure Composer",
+                "Setup: Ensure APP_KEY",
+                "Setup: Ensure npm",
+                "service:database",
+                "service:cache",
+                "Setup: Ensure migrated",
+                "service:serve",
+                "service:vite",
+                "service:logs",
+                "service:desktop"
+            ],
+            "dependsOrder": "sequence",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "play"
+            },
+            "problemMatcher": []
         },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\[dev-database\\]",
-          "endsPattern": "(Ready|ready to accept)"
-        }
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "service:cache",
-      "type": "shell",
-      "command": "./devtools/services/cache.sh start --attach",
-      "icon": {
-        "color": "terminal.ansiRed",
-        "id": "server-process"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": ""
+        {
+            "label": "Dev: Stop",
+            "type": "shell",
+            "command": "./devtools/services/vite.sh stop && ./devtools/services/serve.sh stop && ./devtools/services/cache.sh stop && ./devtools/services/database.sh stop",
+            "icon": {
+                "color": "terminal.ansiRed",
+                "id": "debug-stop"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
         },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\[dev-cache\\]",
-          "endsPattern": "(Ready|ready to accept)"
-        }
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "service:serve",
-      "type": "shell",
-      "command": "./devtools/services/serve.sh start --attach",
-      "icon": {
-        "color": "terminal.ansiMagenta",
-        "id": "server"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": ""
+        {
+            "label": "Dev: Status",
+            "type": "shell",
+            "command": "./devtools/dev/status.sh",
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "info"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "problemMatcher": []
         },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\[dev-serve\\]",
-          "endsPattern": "Server running on"
-        }
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "Format Current File (Prettier)",
-      "type": "shell",
-      "command": "npx prettier --write '${file}'",
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      },
-      "icon": {
-        "color": "terminal.ansiBlue",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "close": true
-      }
-    },
-    {
-      "label": "Lint Current File (ESLint)",
-      "type": "shell",
-      "command": "npx eslint '${file}'",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "alert"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "close": true
-      }
-    },
-    {
-      "label": "Lint & Fix Current File (ESLint)",
-      "type": "shell",
-      "command": "npx eslint '${file}' --fix",
-      "group": {
-        "kind": "test",
-        "isDefault": false
-      },
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "check"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "close": true
-      }
-    },
-    {
-      "label": "Format Current PHP File (Laravel Pint)",
-      "type": "shell",
-      "command": "composer exec -- pint '${file}'",
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      },
-      "icon": {
-        "color": "terminal.ansiCyan",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "close": true
-      }
-    },
-    {
-      "label": "Composer: install",
-      "type": "shell",
-      "command": "composer install",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "arrow-circle-down"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Composer: update",
-      "type": "shell",
-      "command": "composer update",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "arrow-circle-down"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Composer: dump-autoload",
-      "type": "shell",
-      "command": "composer dump-autoload",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "arrow-circle-down"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Artisan: optimize:clear",
-      "type": "shell",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "command": "php artisan optimize:clear",
-      "problemMatcher": []
-    },
-    {
-      "label": "Artisan: route:list",
-      "type": "shell",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "zap"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "command": "php artisan route:list",
-      "problemMatcher": []
-    },
-    {
-      "label": "Database: migrate",
-      "type": "shell",
-      "command": "php artisan migrate",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "database"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Database: migrate:fresh",
-      "type": "shell",
-      "command": "php artisan migrate:fresh",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "database"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Database: migrate:fresh --seed",
-      "type": "shell",
-      "command": "php artisan migrate:fresh --seed",
-      "icon": {
-        "color": "terminal.ansiGreen",
-        "id": "database"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Npm: install",
-      "type": "shell",
-      "command": "npm install",
-      "icon": {
-        "color": "terminal.ansiCyan",
-        "id": "rocket"
-      },
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "service:vite",
-      "type": "shell",
-      "command": "./devtools/services/vite.sh start --attach",
-      "icon": {
-        "color": "terminal.ansiCyan",
-        "id": "rocket"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": ""
+        {
+            "label": "Setup: Ensure .env",
+            "type": "shell",
+            "command": "./devtools/setup/env.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "file"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "close": true
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
         },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\[dev-vite\\]",
-          "endsPattern": "VITE"
-        }
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "service:logs",
-      "type": "shell",
-      "command": "./devtools/services/logs.sh start --attach",
-      "icon": {
-        "color": "terminal.ansiYellow",
-        "id": "output"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": ""
+        {
+            "label": "Setup: Ensure APP_KEY",
+            "type": "shell",
+            "command": "./devtools/setup/app-key.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "key"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "close": true
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
         },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\[dev-logs\\]",
-          "endsPattern": "Tailing"
+        {
+            "label": "Setup: Ensure Composer",
+            "type": "shell",
+            "command": "./devtools/setup/composer.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "package"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "close": true
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Setup: Ensure npm",
+            "type": "shell",
+            "command": "./devtools/setup/npm.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "package"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "close": true
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Setup: Ensure migrated",
+            "type": "shell",
+            "command": "./devtools/setup/migrated.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "database"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared",
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "close": true
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Setup: Configure Ports",
+            "type": "shell",
+            "command": "./devtools/setup/configure-ports.sh run",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "globe"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "service:database",
+            "type": "shell",
+            "command": "./devtools/services/database.sh start --attach",
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "database"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[dev-database\\]",
+                    "endsPattern": "(Ready|ready to accept)"
+                }
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "dedicated",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
+        },
+        {
+            "label": "service:cache",
+            "type": "shell",
+            "command": "./devtools/services/cache.sh start --attach",
+            "icon": {
+                "color": "terminal.ansiRed",
+                "id": "server-process"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[dev-cache\\]",
+                    "endsPattern": "(Ready|ready to accept)"
+                }
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "dedicated",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
+        },
+        {
+            "label": "service:serve",
+            "type": "shell",
+            "command": "./devtools/services/serve.sh start --attach",
+            "icon": {
+                "color": "terminal.ansiMagenta",
+                "id": "server"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[dev-serve\\]",
+                    "endsPattern": "Server running on"
+                }
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "dedicated",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
+        },
+        {
+            "label": "Format Current File (Prettier)",
+            "type": "shell",
+            "command": "npx prettier --write '${file}'",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "zap"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "close": true
+            }
+        },
+        {
+            "label": "Lint Current File (ESLint)",
+            "type": "shell",
+            "command": "npx eslint '${file}'",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "alert"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "close": true
+            }
+        },
+        {
+            "label": "Lint & Fix Current File (ESLint)",
+            "type": "shell",
+            "command": "npx eslint '${file}' --fix",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "check"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "close": true
+            }
+        },
+        {
+            "label": "Format Current PHP File (Laravel Pint)",
+            "type": "shell",
+            "command": "composer exec -- pint '${file}'",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "zap"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "close": true
+            }
+        },
+        {
+            "label": "Composer: install",
+            "type": "shell",
+            "command": "composer install",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "arrow-circle-down"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Composer: update",
+            "type": "shell",
+            "command": "composer update",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "arrow-circle-down"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Composer: dump-autoload",
+            "type": "shell",
+            "command": "composer dump-autoload",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "arrow-circle-down"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Artisan: optimize:clear",
+            "type": "shell",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "zap"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "command": "php artisan optimize:clear",
+            "problemMatcher": []
+        },
+        {
+            "label": "Artisan: route:list",
+            "type": "shell",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "zap"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "command": "php artisan route:list",
+            "problemMatcher": []
+        },
+        {
+            "label": "Database: migrate",
+            "type": "shell",
+            "command": "php artisan migrate",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "database"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Database: migrate:fresh",
+            "type": "shell",
+            "command": "php artisan migrate:fresh",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "database"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Database: migrate:fresh --seed",
+            "type": "shell",
+            "command": "php artisan migrate:fresh --seed",
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "database"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Npm: install",
+            "type": "shell",
+            "command": "npm install",
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "rocket"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "service:vite",
+            "type": "shell",
+            "command": "./devtools/services/vite.sh start --attach",
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "rocket"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[dev-vite\\]",
+                    "endsPattern": "VITE"
+                }
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "dedicated",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
+        },
+        {
+            "label": "service:logs",
+            "type": "shell",
+            "command": "./devtools/services/logs.sh start --attach",
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "output"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ""
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[dev-logs\\]",
+                    "endsPattern": "Tailing"
+                }
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "dedicated",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
+        },
+        {
+            "label": "service:desktop",
+            "type": "shell",
+            "command": "service:desktop start",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Starting|Restarting|Already",
+                    "endsPattern": "noVNC ready at http://localhost"
+                }
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Artisan: Clear All",
+            "type": "shell",
+            "command": "php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan optimize:clear",
+            "icon": {
+                "color": "terminal.ansiCyan",
+                "id": "clear-all"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "focus": true,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": ""
+            }
         }
-      },
-      "presentation": {
-        "focus": false,
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    },
-    {
-      "label": "Artisan: Clear All",
-      "type": "shell",
-      "command": "php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan optimize:clear",
-      "icon": {
-        "color": "terminal.ansiCyan",
-        "id": "clear-all"
-      },
-      "problemMatcher": [],
-      "presentation": {
-        "focus": true,
-        "panel": "shared",
-        "reveal": "always"
-      },
-      "options": {
-        "cwd": ""
-      }
-    }
-  ]
+    ]
 }

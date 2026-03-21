@@ -27,44 +27,45 @@ echo "=== Starting Development Environment ==="
 echo ""
 
 if [[ "$quick_mode" == false ]]; then
-    echo "[1/7] Ensuring .env..."
+    echo "[1/9] Ensuring .env..."
     "$SETUP_DIR/env.sh"
 
     echo ""
-    echo "[2/7] Ensuring Composer dependencies..."
+    echo "[2/9] Configuring access & ports..."
+    "$SETUP_DIR/configure-ports.sh"
+
+    echo ""
+    echo "[3/9] Ensuring Composer dependencies..."
     "$SETUP_DIR/composer.sh"
 
     echo ""
-    echo "[3/7] Ensuring APP_KEY..."
+    echo "[4/9] Ensuring APP_KEY..."
     "$SETUP_DIR/app-key.sh"
 
     echo ""
-    echo "[4/7] Ensuring npm dependencies..."
+    echo "[5/9] Ensuring npm dependencies..."
     "$SETUP_DIR/npm.sh"
 fi
 
 echo ""
-echo "[5/8] Starting database..."
+echo "[6/9] Starting database..."
 "$SERVICES_DIR/database.sh" start
 
 echo ""
-echo "[6/8] Starting cache..."
+echo "[7/9] Starting cache..."
 "$SERVICES_DIR/cache.sh" start
 
 if [[ "$quick_mode" == false ]]; then
     echo ""
-    echo "[7/8] Ensuring database migrations..."
+    echo "[8/9] Ensuring database migrations..."
     "$SETUP_DIR/migrated.sh"
-
-    echo ""
-    echo "Configuring URLs..."
-    "$SETUP_DIR/urls.sh"
 fi
 
 echo ""
-echo "[8/8] Starting services..."
+echo "[9/9] Starting services..."
 "$SERVICES_DIR/serve.sh" start
 "$SERVICES_DIR/vite.sh" start
+"$SERVICES_DIR/desktop.sh" start
 
 echo ""
 echo "=== Development Environment Ready ==="

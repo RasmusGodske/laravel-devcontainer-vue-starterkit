@@ -68,6 +68,7 @@ if [[ "$1" == "--json" ]]; then
     "cache": "$(get_service_status "$SERVICES_DIR/cache.sh" status)",
     "serve": "$(get_service_status "$SERVICES_DIR/serve.sh" status)",
     "vite": "$(get_service_status "$SERVICES_DIR/vite.sh" status)",
+    "desktop": "$(get_service_status "$SERVICES_DIR/desktop.sh" status)",
     "logs": "$(get_service_status "$SERVICES_DIR/logs.sh" status)"
   }
 }
@@ -95,6 +96,7 @@ else
     "$SERVICES_DIR/cache.sh" status || true
     "$SERVICES_DIR/serve.sh" status || true
     "$SERVICES_DIR/vite.sh" status || true
+    "$SERVICES_DIR/desktop.sh" status || true
     "$SERVICES_DIR/logs.sh" status || true
 
     echo ""

@@ -1,9 +1,9 @@
 #!/bin/bash
-# Run all project checks (ESLint, PHPStan, PHP tests)
+# Run all project checks (Sync, ESLint, Dead Code, PHPStan, PHP tests)
 #
 # This script runs all quality checks in sequence and reports results.
 # It's designed to be used by developers for a complete project check,
-# or by CI/CD pipelines for automated validation.
+# or by CI/CD pipelines and Claude Code hooks for automated validation.
 #
 # Usage:
 #   ./devtools/qa.sh                        # Run all checks
@@ -11,8 +11,11 @@
 #   ./devtools/qa.sh --output-dir=/tmp     # Save results to directory
 #   ./devtools/qa.sh --exit-on-failure     # Stop on first failure
 #   ./devtools/qa.sh --skip-eslint         # Skip ESLint
+#   ./devtools/qa.sh --skip-deadcode       # Skip Dead Code detection
 #   ./devtools/qa.sh --skip-php-tests      # Skip PHP tests
 #   ./devtools/qa.sh --skip-phpstan        # Skip PHPStan
+#   ./devtools/qa.sh --skip-sync           # Skip sync drift check
+#   ./devtools/qa.sh --compact             # Compact output (for AI agents)
 #
 # Alias: qa (via symlink in /usr/local/bin)
 #
@@ -34,7 +37,10 @@ EXIT_ON_FAILURE=false
 SKIP_PHP_TESTS=false
 SKIP_PHPSTAN=false
 SKIP_ESLINT=false
+SKIP_DEADCODE=false
+SKIP_SYNC=false
 QUIET=false
+COMPACT=false
 
 # Colors for output (only if terminal supports it)
 if [ -t 1 ]; then
@@ -80,22 +86,37 @@ for arg in "$@"; do
             SKIP_ESLINT=true
             shift
             ;;
+        --skip-deadcode)
+            SKIP_DEADCODE=true
+            shift
+            ;;
+        --skip-sync)
+            SKIP_SYNC=true
+            shift
+            ;;
         --quiet|-q)
             QUIET=true
+            shift
+            ;;
+        --compact)
+            COMPACT=true
             shift
             ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "Run all project checks (ESLint, PHPStan, PHP tests)"
+            echo "Run all project checks (Sync, ESLint, Dead Code, PHPStan, PHP tests)"
             echo ""
             echo "Options:"
             echo "  --output-file=FILE    Save results summary to FILE"
             echo "  --output-dir=DIR      Save results to directory DIR"
             echo "  --exit-on-failure     Stop on first check failure"
             echo "  --skip-eslint         Skip ESLint"
+            echo "  --skip-deadcode       Skip Dead Code detection (Knip)"
             echo "  --skip-php-tests      Skip PHP tests"
             echo "  --skip-phpstan        Skip PHPStan analysis"
+            echo "  --skip-sync           Skip sync drift check"
+            echo "  --compact             Show compact progress; only print output for failures"
             echo "  --quiet, -q           Suppress verbose output"
             echo "  --help, -h            Show this help message"
             exit 0
@@ -136,6 +157,15 @@ log_header() {
     log "${BLUE}${BOLD}════════════════════════════════════════════════════════════════${NC}"
 }
 
+log_skip() {
+    local check_name=$1
+    if [ "$COMPACT" = "true" ]; then
+        printf "  Running %-20s${YELLOW}○ SKIPPED${NC}\n" "$check_name..."
+    else
+        log "${YELLOW}Skipping $check_name${NC}"
+    fi
+}
+
 log_result() {
     local check_name=$1
     local status=$2
@@ -157,19 +187,24 @@ run_check() {
     shift 2
     local check_args=("$@")
 
-    log_header "Running $check_name"
-
     local check_start=$(date +%s)
     local output_file=$(mktemp)
 
-    # Run the check - stream output in real-time while capturing for summary
+    # Run the check with output handling based on mode
     local exit_code
-    if [ "$QUIET" != "true" ]; then
-        # Stream to terminal AND capture to file
+    if [ "$COMPACT" = "true" ]; then
+        # Compact mode - capture silently, show inline progress
+        printf "  Running %-20s" "$check_name..."
+        "$check_script" "${check_args[@]}" > "$output_file" 2>&1
+        exit_code=$?
+    elif [ "$QUIET" != "true" ]; then
+        # Default mode - stream to terminal AND capture to file
+        log_header "Running $check_name"
         "$check_script" "${check_args[@]}" 2>&1 | tee "$output_file"
         exit_code=${PIPESTATUS[0]}  # Get exit code of check script, not tee
     else
         # Quiet mode - capture only, no streaming
+        log_header "Running $check_name"
         "$check_script" "${check_args[@]}" > "$output_file" 2>&1
         exit_code=$?
     fi
@@ -193,8 +228,22 @@ run_check() {
 
     rm -f "$output_file"
 
-    log ""
-    log_result "$check_name" "$status" "$duration"
+    if [ "$COMPACT" = "true" ]; then
+        # Compact mode - print result on same line, then dump output on failure
+        if [ "$status" = "passed" ]; then
+            echo -e "${GREEN}✓ PASSED${NC} (${duration}s)"
+        else
+            echo -e "${RED}✗ FAILED${NC} (${duration}s)"
+            echo ""
+            echo -e "  ${RED}── $check_name Output ──${NC}"
+            echo "${CHECK_OUTPUTS[$check_name]}"
+            echo -e "  ${RED}── End $check_name ──${NC}"
+            echo ""
+        fi
+    else
+        log ""
+        log_result "$check_name" "$status" "$duration"
+    fi
 
     # Exit early if requested
     if [ "$EXIT_ON_FAILURE" = "true" ] && [ "$status" = "failed" ]; then
@@ -212,6 +261,20 @@ print_summary() {
     local end_time=$(date +%s)
     local total_duration=$((end_time - START_TIME))
 
+    if [ "$COMPACT" = "true" ]; then
+        # Compact summary - just the result line
+        echo ""
+        if [ "$CHECKS_FAILED" -eq 0 ] && [ "$CHECKS_RUN" -gt 0 ]; then
+            echo -e "${GREEN}${BOLD}ALL CHECKS PASSED${NC} ($CHECKS_PASSED/$CHECKS_RUN) in ${total_duration}s"
+        elif [ "$CHECKS_RUN" -eq 0 ]; then
+            echo -e "${YELLOW}NO CHECKS RUN (all skipped)${NC}"
+        else
+            echo -e "${RED}${BOLD}CHECKS FAILED${NC} ($CHECKS_FAILED/$CHECKS_RUN failed) in ${total_duration}s"
+        fi
+        echo ""
+        return
+    fi
+
     local summary=""
     summary+="
 ================================================================================
@@ -221,7 +284,7 @@ print_summary() {
 "
 
     # Individual results
-    for check_name in "ESLint" "PHPStan" "PHP Tests"; do
+    for check_name in "Sync" "ESLint" "Dead Code" "PHPStan" "PHP Tests"; do
         if [ -n "${CHECK_RESULTS[$check_name]}" ]; then
             local status="${CHECK_RESULTS[$check_name]}"
             local duration="${CHECK_DURATIONS[$check_name]}"
@@ -232,7 +295,13 @@ print_summary() {
                 summary+="  [FAIL] $check_name (${duration}s)
 "
             fi
+        elif [ "$check_name" = "Sync" ] && [ "$SKIP_SYNC" = "true" ]; then
+            summary+="  [SKIP] $check_name
+"
         elif [ "$check_name" = "ESLint" ] && [ "$SKIP_ESLINT" = "true" ]; then
+            summary+="  [SKIP] $check_name
+"
+        elif [ "$check_name" = "Dead Code" ] && [ "$SKIP_DEADCODE" = "true" ]; then
             summary+="  [SKIP] $check_name
 "
         elif [ "$check_name" = "PHPStan" ] && [ "$SKIP_PHPSTAN" = "true" ]; then
@@ -279,7 +348,7 @@ print_summary() {
             echo "" >> "$OUTPUT_FILE"
             echo "FAILURE DETAILS:" >> "$OUTPUT_FILE"
             echo "================" >> "$OUTPUT_FILE"
-            for check_name in "ESLint" "PHPStan" "PHP Tests"; do
+            for check_name in "Sync" "ESLint" "Dead Code" "PHPStan" "PHP Tests"; do
                 if [ "${CHECK_RESULTS[$check_name]}" = "failed" ]; then
                     echo "" >> "$OUTPUT_FILE"
                     echo "--- $check_name Output ---" >> "$OUTPUT_FILE"
@@ -295,30 +364,50 @@ print_summary() {
 # Main execution
 cd "$PROJECT_DIR"
 
-log "${BOLD}Starting all project checks...${NC}"
-log "Project: $PROJECT_DIR"
-log "Time: $(date)"
-log ""
+if [ "$COMPACT" = "true" ]; then
+    echo ""
+    echo -e "${BOLD}QA Checks${NC} — $(date '+%H:%M:%S')"
+    echo ""
+else
+    log "${BOLD}Starting all project checks...${NC}"
+    log "Project: $PROJECT_DIR"
+    log "Time: $(date)"
+    log ""
+fi
 
-# Run ESLint first (fastest, catches frontend code quality issues)
+# Run Sync drift check first (ensures generated artifacts are up to date before other checks)
+if [ "$SKIP_SYNC" != "true" ]; then
+    run_check "Sync" "$SCRIPT_DIR/sync/all.sh"
+else
+    log_skip "Sync"
+fi
+
+# Run ESLint (fastest, catches frontend code quality issues)
 if [ "$SKIP_ESLINT" != "true" ]; then
     run_check "ESLint" "$SCRIPT_DIR/lint/js.sh"
 else
-    log "${YELLOW}Skipping ESLint (--skip-eslint)${NC}"
+    log_skip "ESLint"
+fi
+
+# Run Dead Code detection (fast, catches unused JS/TS/Vue code)
+if [ "$SKIP_DEADCODE" != "true" ]; then
+    run_check "Dead Code" "$SCRIPT_DIR/lint/deadcode.sh"
+else
+    log_skip "Dead Code"
 fi
 
 # Run PHPStan (fast, catches PHP type errors)
 if [ "$SKIP_PHPSTAN" != "true" ]; then
     run_check "PHPStan" "$SCRIPT_DIR/lint/php.sh"
 else
-    log "${YELLOW}Skipping PHPStan (--skip-phpstan)${NC}"
+    log_skip "PHPStan"
 fi
 
 # Run PHP Tests (medium speed, tests backend logic)
 if [ "$SKIP_PHP_TESTS" != "true" ]; then
     run_check "PHP Tests" "$SCRIPT_DIR/test/php.sh" --parallel
 else
-    log "${YELLOW}Skipping PHP Tests (--skip-php-tests)${NC}"
+    log_skip "PHP Tests"
 fi
 
 # Print summary
