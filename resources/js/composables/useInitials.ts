@@ -1,4 +1,4 @@
-export function getInitials(fullName?: string): string {
+function getInitials(fullName?: string): string {
     if (!fullName) return '';
 
     const names = fullName.trim().split(' ');

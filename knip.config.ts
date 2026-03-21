@@ -41,14 +41,8 @@ const config: KnipConfig = {
 
     // Directories to completely ignore
     ignore: [
-        // Build artifacts
-        'public/build/**',
-        // E2E tests (separate concern, not part of Vue dependency tree)
-        'e2e/**',
         // shadcn UI components (vendored library, not all are used by design)
         'resources/js/components/ui/**',
-        // Generated types (auto-generated, not manually maintained)
-        'resources/js/types/generated/**',
     ],
 
     // Disable Vite plugin auto-detection of entry points — it picks up
@@ -56,16 +50,25 @@ const config: KnipConfig = {
     // (including _components/) as entry points, bypassing our negation.
     vite: false,
 
+    // Unresolved imports that are valid (tsconfig types field references)
+    ignoreUnresolved: [
+        './resources/js/types',
+    ],
+
     // Ignore specific dependencies that are used implicitly
     ignoreDependencies: [
         // Tailwind v4 Vite plugin (loaded via vite config)
         '@tailwindcss/vite',
         // Vite plugins
         '@vitejs/plugin-vue',
-        // Build tools
-        'husky',
-        // Type definitions
-        '@types/node',
+        // CSS imports (used in resources/css/app.css, not JS)
+        'tailwindcss',
+        'tw-animate-css',
+        // Used in composer.json scripts, not package.json scripts
+        'concurrently',
+        // Peer dependency of @vue/eslint-config-typescript
+        '@eslint/js',
+        'typescript-eslint',
     ],
 };
 
