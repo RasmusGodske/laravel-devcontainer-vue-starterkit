@@ -366,6 +366,8 @@ do_status() {
     return 0
 }
 
+SETUP_NAME="setup-access"
+
 # Source shared library for tmux functions
 source "$SCRIPT_DIR/_lib.sh"
 
@@ -373,6 +375,7 @@ source "$SCRIPT_DIR/_lib.sh"
 case "${1:-}" in
     run)
         shift
+        [[ ! -f "$CONFIG_FILE" ]] && set -- --attach "$@"
         run_setup_in_tmux "$@"
         ;;
     status)
