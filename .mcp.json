@@ -21,6 +21,12 @@
                 "--enable-web-dashboard",
                 "False"
             ]
+        },
+        "playwright": {
+            "command": "bash",
+            "args": [
+                "devtools/mcp/playwright/playwright.sh"
+            ]
         }
     }
 }

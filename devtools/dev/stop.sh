@@ -24,6 +24,10 @@ echo "Stopping Laravel server..."
 "$SERVICES_DIR/serve.sh" stop
 
 echo ""
+echo "Stopping desktop..."
+"$SERVICES_DIR/desktop.sh" stop
+
+echo ""
 echo "Stopping logs..."
 "$SERVICES_DIR/logs.sh" stop
 
