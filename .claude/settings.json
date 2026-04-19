@@ -65,12 +65,14 @@
       "Bash(git diff --name-only HEAD)",
       "Skill(*)",
       "mcp__laravel-boost",
-      "mcp__serena"
+      "mcp__serena",
+      "mcp__playwright"
     ]
   },
   "enabledMcpjsonServers": [
     "laravel-boost",
-    "serena"
+    "serena",
+    "playwright"
   ],
   "enabledPlugins": {
     "liv-hooks@claude-liv-conventions": true

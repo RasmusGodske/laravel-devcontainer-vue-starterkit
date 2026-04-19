@@ -87,7 +87,41 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     libasound2t64 \
     libpango-1.0-0 \
     libcairo2 \
-    libatspi2.0-0
+    libatspi2.0-0 \
+    libwayland-client0 \
+    libxext6 \
+    libx11-xcb1 \
+    libvulkan1 \
+    xvfb \
+    fonts-freefont-ttf \
+    fonts-noto-color-emoji
+
+# Install desktop components for headed browser automation via noVNC
+# x11vnc: exposes the Xvfb display as a VNC server
+# novnc: web-based VNC viewer (includes websockify for WebSocket proxying)
+# fluxbox: lightweight window manager so browser windows render correctly
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get install -y x11vnc novnc fluxbox \
+    && ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html
+
+# Pre-install @playwright/mcp globally so the launcher doesn't cold-download it
+# on first use (which can exceed Claude Code's MCP initialization timeout).
+# Also install its bundled Chromium — @playwright/mcp uses its own mcp-chromium-*
+# variant separate from any project-level Playwright install.
+#
+# This base image ships both apt-installed Node at /usr/bin/npm AND NVM-managed
+# Node at /usr/local/share/nvm. The vscode user's shell uses NVM, so installing
+# only via the apt npm would leave the launcher unable to find it at runtime
+# (npm root -g would return the NVM path). We install via both to cover root
+# (CI) and vscode (local dev) resolution paths.
+RUN npm install -g @playwright/mcp@0.0.68 \
+    && node "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install chromium
+
+USER vscode
+RUN bash -c 'source /usr/local/share/nvm/nvm.sh \
+    && npm install -g @playwright/mcp@0.0.68 \
+    && node "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install chromium'
+USER root
 
 # Install Claude Code CLI and uv for vscode user
 USER vscode
@@ -136,7 +170,8 @@ RUN ln -s /home/vscode/project/devtools/services/database.sh /usr/local/bin/serv
     && ln -s /home/vscode/project/devtools/services/cache.sh /usr/local/bin/service:cache \
     && ln -s /home/vscode/project/devtools/services/serve.sh /usr/local/bin/service:serve \
     && ln -s /home/vscode/project/devtools/services/vite.sh /usr/local/bin/service:vite \
-    && ln -s /home/vscode/project/devtools/services/logs.sh /usr/local/bin/service:logs
+    && ln -s /home/vscode/project/devtools/services/logs.sh /usr/local/bin/service:logs \
+    && ln -s /home/vscode/project/devtools/services/desktop.sh /usr/local/bin/service:desktop
 
 # Create symlinks for dev orchestration commands
 RUN ln -s /home/vscode/project/devtools/dev/start.sh /usr/local/bin/dev:start \

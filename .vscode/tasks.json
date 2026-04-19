@@ -11,6 +11,7 @@
         "Setup: Ensure npm",
         "service:database",
         "service:cache",
+        "service:desktop",
         "Setup: Ensure migrated",
         "service:serve",
         "service:vite",
@@ -26,7 +27,7 @@
     {
       "label": "Dev: Stop",
       "type": "shell",
-      "command": "./devtools/services/vite.sh stop && ./devtools/services/serve.sh stop && ./devtools/services/cache.sh stop && ./devtools/services/database.sh stop",
+      "command": "./devtools/services/vite.sh stop && ./devtools/services/serve.sh stop && ./devtools/services/desktop.sh stop && ./devtools/services/cache.sh stop && ./devtools/services/database.sh stop",
       "icon": {
         "color": "terminal.ansiRed",
         "id": "debug-stop"
@@ -218,6 +219,34 @@
           "activeOnStart": true,
           "beginsPattern": "^\\[dev-cache\\]",
           "endsPattern": "(Ready|ready to accept)"
+        }
+      },
+      "presentation": {
+        "focus": false,
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "options": {
+        "cwd": ""
+      }
+    },
+    {
+      "label": "service:desktop",
+      "type": "shell",
+      "command": "./devtools/services/desktop.sh start --attach",
+      "icon": {
+        "color": "terminal.ansiGreen",
+        "id": "device-desktop"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ""
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[dev-desktop\\]",
+          "endsPattern": "noVNC ready at"
         }
       },
       "presentation": {

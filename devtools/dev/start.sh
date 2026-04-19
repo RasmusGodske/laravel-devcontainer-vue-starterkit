@@ -51,6 +51,10 @@ echo ""
 echo "[6/8] Starting cache..."
 "$SERVICES_DIR/cache.sh" start
 
+echo ""
+echo "Starting desktop (Xvfb + noVNC for headed Playwright MCP)..."
+"$SERVICES_DIR/desktop.sh" start
+
 if [[ "$quick_mode" == false ]]; then
     echo ""
     echo "[7/8] Ensuring database migrations..."
