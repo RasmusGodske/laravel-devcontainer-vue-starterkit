@@ -51,7 +51,6 @@
   },
   "remoteUser": "vscode",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "dockerDashComposeVersion": "v2"
     }

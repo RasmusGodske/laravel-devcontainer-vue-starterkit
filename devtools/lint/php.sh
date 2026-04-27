@@ -9,9 +9,6 @@
 #   ./devtools/lint/php.sh --generate-baseline  # Generate new baseline
 #
 # Alias: lint:php (via symlink in /usr/local/bin)
-#
-# Options:
-#   --no-lumby  Skip AI diagnosis on failure
 
 set -e
 
@@ -25,30 +22,12 @@ PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 cd "$PROJECT_DIR"
 
-# Parse --no-lumby option
-USE_LUMBY=true
-ARGS=()
-for arg in "$@"; do
-    if [ "$arg" = "--no-lumby" ]; then
-        USE_LUMBY=false
-    else
-        ARGS+=("$arg")
-    fi
-done
+ARGS=("$@")
 
-# Auto-disable Lumby in CI environments when ANTHROPIC_API_KEY is not set
-# When the API key is available, Lumby can authenticate Claude Code
-if [ "${CI:-false}" = "true" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    USE_LUMBY=false
-fi
-
-# Helper function to run command with optional lumby
+# Helper function to run a command (kept as a thin wrapper so call sites stay
+# uniform and we have a single place to add cross-cutting behavior later).
 run_cmd() {
-    if [ "$USE_LUMBY" = "true" ]; then
-        lumby -- "$@"
-    else
-        "$@"
-    fi
+    "$@"
 }
 
 echo "=== Setting up PHPStan environment ==="

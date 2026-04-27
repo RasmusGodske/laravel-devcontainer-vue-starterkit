@@ -2,10 +2,9 @@
 
 ## Overview
 
-The devtools scripts provide a consistent interface for common development tasks like testing, linting, and code review. They integrate with the quality tools (tarnished, lumby, reldo) to enable:
+The devtools scripts provide a consistent interface for common development tasks like testing, linting, and code review. They integrate with the quality tools (tarnished, reldo) to enable:
 
 - **Smart change tracking** - only run checks when files have changed
-- **AI diagnosis** - get explanations when commands fail
 - **Unified workflow** - same commands work locally and in CI
 
 Instead of remembering different tool commands and flags, you use simple aliases like `test:php` and `lint:js` that handle the setup and integration automatically.
@@ -42,15 +41,11 @@ Most scripts support:
 
 | Option | Description |
 |--------|-------------|
-| `--no-lumby` | Skip AI diagnosis on failure |
 | `--help` | Show usage information |
 
 ### Quality Tool Integration
 
-Each test/lint script automatically:
-
-1. Wraps the command with `lumby` for AI diagnosis on failure
-2. Saves a `tarnished` checkpoint on success
+Each test/lint script automatically saves a `tarnished` checkpoint on success.
 
 This means after running `lint:php`, tarnished knows that check is clean until you change PHP files.
 
@@ -85,11 +80,10 @@ To add a new devtools command:
 
 1. **Create the script** in the appropriate directory (`test/`, `lint/`, etc.)
 2. **Add a symlink** in the Dockerfile for easy access
-3. **Integrate with quality tools** - wrap with `lumby` and save `tarnished` checkpoints:
+3. **Integrate with quality tools** - save `tarnished` checkpoints on success:
 
 ```bash
-# Run with lumby wrapping
-run_cmd php artisan test "$@"
+php artisan test "$@"
 exit_code=$?
 
 # Save checkpoint on success

@@ -107,13 +107,6 @@ Example output:
 {"lint:php": "tarnished", "lint:js": "clean", "test:php": "clean"}
 ```
 
-## Skipping AI Diagnosis
-
-```bash
-lint:php --no-lumby
-lint:js --no-lumby
-```
-
 ## IDE Integration
 
 VS Code extensions provide real-time feedback:

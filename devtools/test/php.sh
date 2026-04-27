@@ -13,7 +13,6 @@
 #
 # Options:
 #   --debug            Enable Xdebug (disabled by default for performance)
-#   --no-lumby         Skip AI diagnosis on failure
 #   --status           Show queue status and exit
 #   --wait-timeout=N   Seconds to wait for queue lock (default: 600)
 #
@@ -33,15 +32,12 @@ queue_init "$SCRIPT_DIR/.php" "test:php"
 cd "$PROJECT_DIR"
 
 # Parse custom options
-USE_LUMBY=true
 USE_XDEBUG=false
 SHOW_STATUS=false
 WAIT_TIMEOUT=600
 ARGS=()
 for arg in "$@"; do
-    if [ "$arg" = "--no-lumby" ]; then
-        USE_LUMBY=false
-    elif [ "$arg" = "--debug" ]; then
+    if [ "$arg" = "--debug" ]; then
         USE_XDEBUG=true
     elif [ "$arg" = "--status" ]; then
         SHOW_STATUS=true
@@ -64,19 +60,10 @@ if [ "$USE_XDEBUG" = "false" ]; then
     export XDEBUG_MODE=off
 fi
 
-# Auto-disable Lumby in CI environments when ANTHROPIC_API_KEY is not set
-# When the API key is available, Lumby can authenticate Claude Code
-if [ "${CI:-false}" = "true" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    USE_LUMBY=false
-fi
-
-# Helper function to run command with optional lumby
+# Helper function to run a command (kept as a thin wrapper so call sites stay
+# uniform and we have a single place to add cross-cutting behavior later).
 run_cmd() {
-    if [ "$USE_LUMBY" = "true" ]; then
-        lumby -- "$@"
-    else
-        "$@"
-    fi
+    "$@"
 }
 
 echo "=== Setting up testing environment ==="

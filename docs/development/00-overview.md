@@ -9,7 +9,7 @@ This documentation covers the development environment features included in this 
 | **Stack** | Laravel 12, Vue 3, Inertia.js, TypeScript, Tailwind CSS |
 | **Environment** | VS Code Devcontainer (PHP runs directly, no Sail) |
 | **Database** | PostgreSQL 17, Redis for caching/sessions |
-| **Quality Tools** | tarnished, lumby, reldo for smart development workflows |
+| **Quality Tools** | tarnished, reldo for smart development workflows |
 | **AI Integration** | Claude Code with rules, agents, and plugins |
 
 ## Quick Start
@@ -46,7 +46,7 @@ This documentation covers the development environment features included in this 
 
 ### AI-Assisted Development
 - [Devtools](14-devtools.md) - Development commands (test:php, lint:php, etc.)
-- [Quality Tools](15-quality-tools.md) - tarnished, lumby, reldo integration
+- [Quality Tools](15-quality-tools.md) - tarnished, reldo integration
 - [Claude Code Configuration](16-claude-code-configuration.md) - Rules, agents, and plugins
 
 ## Common Commands

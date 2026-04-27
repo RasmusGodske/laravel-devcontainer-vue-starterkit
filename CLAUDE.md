@@ -140,7 +140,7 @@ This is non-negotiable. The workflow is:
 
 ## Development Commands
 
-Use the devtools scripts instead of raw commands. They include environment setup and AI-powered failure diagnosis via `lumby`:
+Use the devtools scripts instead of raw commands. They include environment setup:
 
 | Command | Wraps | Accepts |
 |---------|-------|---------|
@@ -171,7 +171,7 @@ qa                              # Run all quality checks
 qa --skip-phpstan               # Skip PHPStan
 ```
 
-**Why devtools?** These scripts auto-setup the environment and use `lumby` for AI diagnosis on failures—reducing context usage in your session.
+**Why devtools?** These scripts auto-setup the environment so you don't have to repeat it in every session.
 
 ### Dependency Analysis (Knip)
 

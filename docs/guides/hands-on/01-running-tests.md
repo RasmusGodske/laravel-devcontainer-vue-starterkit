@@ -13,7 +13,6 @@ test:php --filter=test_user_can_login  # Run specific test method
 ## Why Use `test:php`?
 
 The `test:php` command wraps PHPUnit with:
-- **lumby** - AI diagnosis when tests fail
 - **tarnished** - Tracks when tests need re-running
 
 ```bash
@@ -46,14 +45,6 @@ test:php --filter=UserTest::test_user_can_login
 test:php --stop-on-failure    # Stop at first failure
 test:php --testdox            # Readable output format
 test:php --coverage           # Generate coverage report
-```
-
-## Skipping AI Diagnosis
-
-If you don't want lumby to analyze failures:
-
-```bash
-test:php --no-lumby
 ```
 
 ## Direct PHPUnit Access

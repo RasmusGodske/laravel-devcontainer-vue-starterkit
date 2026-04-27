@@ -29,11 +29,11 @@ devtools/
 ├── lib/
 │   └── queue.sh       # Shared flock-based test queue library
 ├── test/
-│   └── php.sh         # PHPUnit + lumby + tarnished + queue
+│   └── php.sh         # PHPUnit + tarnished + queue
 ├── lint/
-│   ├── php.sh         # PHPStan + lumby + tarnished
-│   ├── js.sh          # ESLint + lumby + tarnished
-│   └── ts.sh          # vue-tsc + lumby
+│   ├── php.sh         # PHPStan + tarnished
+│   ├── js.sh          # ESLint + tarnished
+│   └── ts.sh          # vue-tsc
 ├── review/
 │   └── code.sh        # reldo wrapper
 ├── qa.sh              # Run all quality checks
@@ -44,11 +44,9 @@ devtools/
 
 Each command:
 1. Runs the underlying tool (phpunit, phpstan, eslint, etc.)
-2. Wraps with **lumby** for AI diagnosis on failure
-3. Saves **tarnished** checkpoint on success
+2. Saves **tarnished** checkpoint on success
 
 This means:
-- When a check fails, you get AI-powered diagnosis
 - After a check passes, tarnished knows it's "clean"
 - `tarnished status` tells you what needs re-running
 
@@ -139,18 +137,9 @@ review:code "Review authentication changes"
 qa
 ```
 
-## Disabling AI Diagnosis
-
-All commands support `--no-lumby` to skip AI diagnosis:
-
-```bash
-test:php --no-lumby
-lint:php --no-lumby
-```
-
 ## Adding New Commands
 
 1. Create script in appropriate directory (test/, lint/, review/)
-2. Follow the pattern: run command → lumby wrap → tarnished checkpoint
+2. Follow the pattern: run command → tarnished checkpoint on success
 3. Add symlink in `.devcontainer/Dockerfile`
 4. Update this README

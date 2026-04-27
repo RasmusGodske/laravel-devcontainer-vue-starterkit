@@ -2,13 +2,12 @@
 
 ## Overview
 
-Running code checks manually is tedious and error-prone. Developers often forget to run tests after making changes, or spend time diagnosing cryptic error messages. This starterkit includes three quality tools that create a smart development workflow:
+Running code checks manually is tedious and error-prone. Developers often forget to run tests after making changes. This starterkit includes two quality tools that create a smart development workflow:
 
 - **tarnished** - Tracks which checks need re-running after file changes
-- **lumby** - Provides AI-powered diagnosis when commands fail
 - **reldo** - Enables AI-powered code review before committing
 
-Together, they ensure you always know what needs checking, get help when things fail, and catch issues before they become problems.
+Together, they ensure you always know what needs checking and catch issues before they become problems.
 
 ## Usage
 
@@ -32,19 +31,6 @@ tarnished status
 - `tarnished` - Files changed, need to re-run the check
 - `never_saved` - Check has never been run successfully
 
-### lumby - AI Diagnosis
-
-Wraps commands and uses Claude to diagnose failures. When a command fails, lumby analyzes the output and suggests fixes.
-
-```bash
-# Automatically used by devtools scripts
-test:php --filter=UserTest
-# If tests fail, lumby provides AI-powered diagnosis
-
-# Can be disabled
-test:php --no-lumby
-```
-
 ### reldo - Code Review
 
 AI-powered code reviewer that checks your changes before committing.
@@ -67,8 +53,6 @@ review:code "Review app/Services/AuthService.php"
 | `lint:ts` | Run TypeScript type checking |
 | `review:code` | Run AI code review via reldo |
 | `qa` | Run all quality checks |
-
-All commands support `--no-lumby` to disable AI diagnosis.
 
 ### Workflow Example
 
@@ -94,10 +78,9 @@ review:code "Review User model changes"
 
 ### CI Integration
 
-In CI environments without `ANTHROPIC_API_KEY`, lumby automatically disables itself:
+The same commands work in CI:
 
 ```bash
-# In CI, this just runs the command directly (no AI diagnosis)
 test:php
 ```
 

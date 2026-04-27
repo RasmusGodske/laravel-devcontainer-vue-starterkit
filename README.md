@@ -84,7 +84,7 @@ Perfect for: Developers who want full control.
 | **Stack** | Laravel 12, Vue 3, Inertia.js, TypeScript, Tailwind CSS |
 | **Database** | PostgreSQL 17, Redis |
 | **Quality** | PHPStan, ESLint, Prettier, PHPUnit |
-| **AI Tools** | Claude Code, tarnished (change tracking), lumby (error diagnosis), reldo (code review) |
+| **AI Tools** | Claude Code, tarnished (change tracking), reldo (code review) |
 | **DX** | Hot reload, IDE helpers, type generation |
 
 ---

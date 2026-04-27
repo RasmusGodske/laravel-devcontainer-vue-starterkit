@@ -128,27 +128,6 @@ The same commands work in CI:
 qa                            # Fails if any check fails
 ```
 
-## Error Diagnosis (lumby)
-
-When checks fail, **lumby** provides AI diagnosis:
-
-```
-✗ test:php failed
-
-lumby analysis:
-The test_user_can_login test is failing because the User model
-was changed to require email verification, but the test doesn't
-verify the email first. Add $user->markEmailAsVerified() before
-attempting login.
-```
-
-### Disable AI Diagnosis
-
-```bash
-lint:php --no-lumby
-test:php --no-lumby
-```
-
 ## Next Steps
 
 - [Service Management](04-service-management.md)

@@ -8,7 +8,7 @@ Without this configuration, Claude would need to ask permission for every tool u
 
 - Pre-approved permissions for safe operations (linting, testing, file reads)
 - Consistent code generation matching your codebase patterns
-- Integration with quality tools (tarnished, reldo, lumby)
+- Integration with quality tools (tarnished, reldo)
 - Specialized agents for common tasks
 
 ## Usage

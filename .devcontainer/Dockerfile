@@ -109,18 +109,15 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Also install its bundled Chromium — @playwright/mcp uses its own mcp-chromium-*
 # variant separate from any project-level Playwright install.
 #
-# This base image ships both apt-installed Node at /usr/bin/npm AND NVM-managed
-# Node at /usr/local/share/nvm. The vscode user's shell uses NVM, so installing
-# only via the apt npm would leave the launcher unable to find it at runtime
-# (npm root -g would return the NVM path). We install via both to cover root
-# (CI) and vscode (local dev) resolution paths.
-RUN npm install -g @playwright/mcp@0.0.68 \
-    && node "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install chromium
+# Node.js is managed by apt (installed above), so npm root -g is stable for both
+# root and vscode users. We install the package once globally as root, then run
+# the chromium install for the vscode user so the browser ends up in their cache.
+RUN npm install -g @playwright/mcp@0.0.68
 
+# Pre-install the MCP-managed Chromium browser for vscode user.
+# @playwright/mcp uses its own mcp-chromium-* variant separate from any system Playwright.
 USER vscode
-RUN bash -c 'source /usr/local/share/nvm/nvm.sh \
-    && npm install -g @playwright/mcp@0.0.68 \
-    && node "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install chromium'
+RUN node "$(npm root -g)/@playwright/mcp/node_modules/.bin/playwright" install chromium
 USER root
 
 # Install Claude Code CLI and uv for vscode user
@@ -128,7 +125,6 @@ USER vscode
 RUN curl -fsSL https://claude.ai/install.sh | bash
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # Install quality tools via uv
-RUN /home/vscode/.local/bin/uv tool install lumby
 RUN /home/vscode/.local/bin/uv tool install reldo
 RUN /home/vscode/.local/bin/uv tool install tarnished
 USER root
@@ -146,10 +142,7 @@ RUN echo "Installing Claude Code for root..." \
 RUN echo "Installing uv for root..." \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.bashrc
-RUN echo "Installing lumby for root..." \
-    && /root/.local/bin/uv tool install lumby \
-    && ln -s /root/.local/bin/lumby /usr/local/bin/lumby \
-    && ln -s /root/.local/bin/uvx /usr/local/bin/uvx
+RUN ln -s /root/.local/bin/uvx /usr/local/bin/uvx
 RUN echo "Installing reldo for root..." \
     && /root/.local/bin/uv tool install reldo \
     && ln -s /root/.local/bin/reldo /usr/local/bin/reldo

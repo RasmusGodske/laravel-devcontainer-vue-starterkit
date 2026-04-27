@@ -10,9 +10,6 @@
 #   ./devtools/lint/ts.sh resources/js/Pages/*.vue     # Type-check multiple files
 #
 # Alias: lint:ts (via symlink in /usr/local/bin)
-#
-# Options:
-#   --no-lumby    Skip AI diagnosis on failure
 
 set -e
 
@@ -24,21 +21,16 @@ PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 cd "$PROJECT_DIR"
 
 # Parse options
-USE_LUMBY=true
 FILES=()
 
 for arg in "$@"; do
     case $arg in
-        --no-lumby)
-            USE_LUMBY=false
-            ;;
         --help|-h)
             echo "Usage: lint:ts [OPTIONS] [FILES...]"
             echo ""
             echo "Run TypeScript type checking"
             echo ""
             echo "Options:"
-            echo "  --no-lumby     Skip AI diagnosis on failure"
             echo "  --help, -h     Show this help message"
             echo ""
             echo "Examples:"
@@ -55,19 +47,10 @@ for arg in "$@"; do
     esac
 done
 
-# Auto-disable Lumby in CI environments when ANTHROPIC_API_KEY is not set
-# When the API key is available, Lumby can authenticate Claude Code
-if [ "${CI:-false}" = "true" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    USE_LUMBY=false
-fi
-
-# Helper function to run command with optional lumby
+# Helper function to run a command (kept as a thin wrapper so call sites stay
+# uniform and we have a single place to add cross-cutting behavior later).
 run_cmd() {
-    if [ "$USE_LUMBY" = "true" ]; then
-        lumby -- "$@"
-    else
-        "$@"
-    fi
+    "$@"
 }
 
 if [ ${#FILES[@]} -eq 0 ]; then
